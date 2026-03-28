@@ -19,6 +19,7 @@ import TaskPanel from "./TaskPanel";
 
 export default function Board() {
 	const [tasks, setTasks] = useState<Task[]>([]);
+	const [projects, setProjects] = useState<string[]>([]);
 	const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 	const [showCreate, setShowCreate] = useState(false);
 	const [activeTask, setActiveTask] = useState<Task | null>(null);
@@ -33,20 +34,24 @@ export default function Board() {
 		const res = await fetch("/api/tasks");
 		const data = await res.json();
 		setTasks(data.tasks);
+		setProjects(data.projects || []);
 	}, []);
 
 	useEffect(() => {
 		fetchTasks();
 	}, [fetchTasks]);
 
-	async function handleCreateTask(title: string, description: string) {
+	async function handleCreateTask(title: string, description: string, folder: string) {
 		const res = await fetch("/api/tasks", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ title, description }),
+			body: JSON.stringify({ title, description, folder }),
 		});
 		const task = await res.json();
 		setTasks((prev) => [...prev, task]);
+		if (!projects.includes(folder)) {
+			setProjects((prev) => [...prev, folder]);
+		}
 		setShowCreate(false);
 	}
 
@@ -151,7 +156,11 @@ export default function Board() {
 			)}
 
 			{showCreate && (
-				<CreateTaskModal onClose={() => setShowCreate(false)} onCreate={handleCreateTask} />
+				<CreateTaskModal
+					projects={projects}
+					onClose={() => setShowCreate(false)}
+					onCreate={handleCreateTask}
+				/>
 			)}
 		</div>
 	);

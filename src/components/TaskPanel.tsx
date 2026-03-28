@@ -89,6 +89,22 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete }: TaskPan
 						/>
 					</div>
 
+					{task.folder && (
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-1">
+								Project
+							</label>
+							<div className="flex items-center gap-2">
+								<span className="inline-block text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded">
+									{task.folder.split("/").filter(Boolean).pop() || task.folder}
+								</span>
+								<span className="text-xs text-gray-400 truncate" title={task.folder}>
+									{task.folder}
+								</span>
+							</div>
+						</div>
+					)}
+
 					<div className="text-xs text-gray-400">
 						Created: {new Date(task.createdAt).toLocaleDateString()}
 					</div>

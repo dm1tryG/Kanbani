@@ -20,6 +20,8 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
 		transition,
 	};
 
+	const folderLabel = task.folder ? task.folder.split("/").filter(Boolean).pop() || task.folder : null;
+
 	return (
 		<div
 			ref={setNodeRef}
@@ -34,6 +36,11 @@ export default function TaskCard({ task, onClick }: TaskCardProps) {
 				isDragging ? "opacity-50 shadow-lg" : ""
 			}`}
 		>
+			{folderLabel && (
+				<span className="inline-block text-[10px] font-medium text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded mb-1.5">
+					{folderLabel}
+				</span>
+			)}
 			<h3 className="text-sm font-medium text-gray-900 break-words">{task.title}</h3>
 			{task.description && (
 				<p className="text-xs text-gray-500 mt-1 line-clamp-2 break-words">{task.description}</p>
