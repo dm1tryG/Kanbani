@@ -38,11 +38,11 @@ export default function TaskCard({ task, onClick, onRun }: TaskCardProps) {
 			onKeyDown={(e) => {
 				if (e.key === "Enter" || e.key === " ") onClick(task);
 			}}
-			className={`bg-surface rounded-md shadow-sm border border-border p-3 cursor-grab hover:shadow-md transition-shadow ${
-				isDragging ? "opacity-50 shadow-lg" : ""
+			className={`bg-surface rounded-lg border border-border p-3.5 cursor-grab shadow-card hover:shadow-card-hover transition-all duration-150 ${
+				isDragging ? "opacity-50 shadow-card-hover scale-105" : ""
 			}`}
 		>
-			<div className="flex items-center justify-between mb-1.5">
+			<div className="flex items-center justify-between mb-2">
 				<div className="flex items-center gap-1.5">
 					{folderLabel && <Badge>{folderLabel}</Badge>}
 					{task.agentRunning && <Badge variant="warning">running</Badge>}
@@ -63,9 +63,9 @@ export default function TaskCard({ task, onClick, onRun }: TaskCardProps) {
 					</IconButton>
 				)}
 			</div>
-			<h3 className="text-body font-medium text-text-primary break-words">{task.title}</h3>
+			<h3 className="text-body font-semibold text-foreground break-words">{task.title}</h3>
 			{task.description && (
-				<p className="text-caption text-text-secondary mt-1 line-clamp-2 break-words">
+				<p className="text-caption text-muted mt-1.5 line-clamp-2 break-words leading-relaxed">
 					{task.description}
 				</p>
 			)}

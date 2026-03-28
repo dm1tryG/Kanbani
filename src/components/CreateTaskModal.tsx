@@ -84,13 +84,13 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center">
-			<div className="absolute inset-0 bg-black/30" />
+			<div className="absolute inset-0 bg-overlay animate-fade-in" />
 			<div
 				ref={modalRef}
-				className="relative bg-surface rounded-lg shadow-xl w-[480px] max-w-full p-5"
+				className="relative bg-surface rounded-xl shadow-modal w-[500px] max-w-full p-6 animate-scale-in"
 			>
-				<h2 className="text-heading font-semibold text-text-primary mb-4">Create Task</h2>
-				<form onSubmit={handleSubmit} className="space-y-3">
+				<h2 className="text-heading font-bold text-foreground mb-5">Create Task</h2>
+				<form onSubmit={handleSubmit} className="space-y-4">
 					<Input
 						ref={titleRef}
 						id="new-title"
@@ -102,7 +102,7 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 					/>
 
 					<div>
-						<label className="block text-body font-medium text-text-primary mb-1">Project</label>
+						<label className="block text-body font-semibold text-foreground mb-1.5">Project</label>
 						{showPicker ? (
 							<FolderPicker
 								onSelect={handleFolderSelected}
@@ -115,13 +115,13 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 								<button
 									type="button"
 									onClick={() => setShowDropdown(!showDropdown)}
-									className="w-full px-3 py-2 border border-border-strong rounded-md text-body text-left flex items-center justify-between hover:border-text-disabled focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
+									className="w-full px-3 py-2.5 bg-surface border border-border-strong rounded-md text-body text-left flex items-center justify-between hover:border-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary cursor-pointer transition-colors"
 								>
-									<span className={folder ? "text-text-primary" : "text-text-disabled"}>
+									<span className={folder ? "text-foreground" : "text-faint"}>
 										{folder ? folderLabel(folder) : "Select a project..."}
 									</span>
 									<svg
-										className="w-4 h-4 text-text-disabled"
+										className="w-4 h-4 text-faint"
 										fill="none"
 										stroke="currentColor"
 										viewBox="0 0 24 24"
@@ -135,26 +135,21 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 									</svg>
 								</button>
 								{folder && (
-									<div
-										className="text-caption text-text-disabled mt-1 truncate font-mono"
-										title={folder}
-									>
+									<div className="text-caption text-faint mt-1.5 truncate font-mono" title={folder}>
 										{folder}
 									</div>
 								)}
 								{showDropdown && (
-									<div className="absolute z-10 mt-1 w-full bg-surface border border-border rounded-md shadow-lg max-h-48 overflow-y-auto">
+									<div className="absolute z-10 mt-1 w-full bg-surface border border-border rounded-lg shadow-dropdown max-h-48 overflow-y-auto animate-scale-in">
 										{projects.map((p) => (
 											<button
 												key={p}
 												type="button"
 												onClick={() => selectProject(p)}
-												className="w-full px-3 py-2 text-body text-left hover:bg-primary-light flex flex-col cursor-pointer"
+												className="w-full px-3 py-2.5 text-body text-left hover:bg-primary-light flex flex-col cursor-pointer transition-colors"
 											>
-												<span className="font-medium text-text-primary">{folderLabel(p)}</span>
-												<span className="text-caption text-text-disabled truncate font-mono">
-													{p}
-												</span>
+												<span className="font-semibold text-foreground">{folderLabel(p)}</span>
+												<span className="text-caption text-faint truncate font-mono">{p}</span>
 											</button>
 										))}
 										<button
@@ -163,7 +158,7 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 												setShowDropdown(false);
 												setShowPicker(true);
 											}}
-											className="w-full px-3 py-2 text-body text-left hover:bg-primary-light text-primary font-medium border-t border-border cursor-pointer"
+											className="w-full px-3 py-2.5 text-body text-left hover:bg-primary-light text-primary font-semibold border-t border-border cursor-pointer transition-colors"
 										>
 											+ Browse for folder...
 										</button>
@@ -181,7 +176,7 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 						placeholder="Add a description..."
 						rows={3}
 					/>
-					<div className="flex justify-end gap-2 pt-2">
+					<div className="flex justify-end gap-2.5 pt-3">
 						<Button variant="secondary" type="button" onClick={onClose}>
 							Cancel
 						</Button>

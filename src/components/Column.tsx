@@ -27,26 +27,29 @@ export default function Column({
 
 	return (
 		<div
-			className={`bg-surface-tertiary rounded-lg w-72 flex-shrink-0 flex flex-col max-h-full ${
-				isOver ? "bg-border" : ""
+			className={`bg-surface-dim/60 rounded-xl w-72 flex-shrink-0 flex flex-col max-h-full border border-border/50 transition-colors duration-150 ${
+				isOver ? "bg-surface-dim border-primary/30" : ""
 			}`}
 		>
-			<div className="flex items-center justify-between px-3 pt-3 pb-1">
+			<div className="flex items-center justify-between px-4 pt-4 pb-2">
 				<div className="flex items-center gap-2">
-					<h2 className="text-body font-semibold text-text-secondary">{title}</h2>
+					<h2 className="text-body font-bold text-foreground">{title}</h2>
 					<Badge variant="count">{tasks.length}</Badge>
 				</div>
 				{onAddTask && (
 					<button
 						onClick={onAddTask}
 						type="button"
-						className="text-text-disabled hover:text-text-secondary text-xl leading-none pb-0.5 cursor-pointer"
+						className="w-7 h-7 flex items-center justify-center rounded-lg text-faint hover:text-primary hover:bg-primary-light transition-all duration-150 cursor-pointer text-lg leading-none"
 					>
 						+
 					</button>
 				)}
 			</div>
-			<div ref={setNodeRef} className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[40px]">
+			<div
+				ref={setNodeRef}
+				className="flex-1 overflow-y-auto px-3 pb-3 pt-1 space-y-2.5 min-h-[40px]"
+			>
 				<SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
 					{tasks.map((task) => (
 						<TaskCard key={task.id} task={task} onClick={onTaskClick} onRun={onRunTask} />

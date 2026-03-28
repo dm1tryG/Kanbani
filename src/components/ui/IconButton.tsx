@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes } from "react";
 
 const variants = {
-	ghost: "text-text-disabled hover:text-text-secondary",
+	ghost: "text-faint hover:text-muted hover:bg-surface-dim",
 	success: "text-success hover:bg-success-light hover:text-success-hover",
 } as const;
 
@@ -17,7 +17,7 @@ export default function IconButton({
 }: IconButtonProps) {
 	return (
 		<button
-			className={`w-6 h-6 flex items-center justify-center rounded-full transition-colors cursor-pointer ${variants[variant]} ${className}`}
+			className={`w-7 h-7 flex items-center justify-center rounded-full transition-all duration-150 cursor-pointer ${variants[variant]} ${className}`}
 			{...props}
 		>
 			{children}

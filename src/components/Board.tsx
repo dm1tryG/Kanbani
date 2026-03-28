@@ -42,7 +42,6 @@ export default function Board() {
 		fetchTasks();
 	}, [fetchTasks]);
 
-	// Poll for updates when any agent is running
 	useEffect(() => {
 		const hasRunning = tasks.some((t) => t.agentRunning);
 		if (hasRunning && !pollingRef.current) {
@@ -59,7 +58,6 @@ export default function Board() {
 		};
 	}, [tasks, fetchTasks]);
 
-	// Keep selectedTask in sync with tasks
 	useEffect(() => {
 		if (selectedTask) {
 			const updated = tasks.find((t) => t.id === selectedTask.id);
@@ -113,7 +111,6 @@ export default function Board() {
 				t.id === task.id ? { ...t, column: "inprogress" as ColumnId, agentRunning: true } : t,
 			),
 		);
-
 		await fetch(`/api/tasks/${task.id}/run`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -127,7 +124,6 @@ export default function Board() {
 				t.id === task.id ? { ...t, column: "inprogress" as ColumnId, agentRunning: true } : t,
 			),
 		);
-
 		await fetch(`/api/tasks/${task.id}/run`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
@@ -170,14 +166,19 @@ export default function Board() {
 	}
 
 	return (
-		<div className="h-screen flex flex-col bg-gradient-to-br from-primary-light to-surface-tertiary">
-			<header className="flex items-center px-6 py-3 bg-surface/80 backdrop-blur border-b border-border">
-				<h1 className="text-heading font-bold text-text-primary">Kanbani</h1>
+		<div className="h-screen flex flex-col">
+			<header className="flex items-center px-6 py-4 bg-surface/70 backdrop-blur-md border-b border-border">
+				<div className="flex items-center gap-2.5">
+					<div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
+						<span className="text-white font-bold text-body">K</span>
+					</div>
+					<h1 className="text-heading font-bold text-foreground tracking-tight">Kanbani</h1>
+				</div>
 			</header>
 
 			<main className="flex-1 overflow-x-auto p-6">
 				<DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-					<div className="flex gap-4 h-full">
+					<div className="flex gap-5 h-full">
 						{COLUMNS.map((col) => (
 							<Column
 								key={col.id}
@@ -192,7 +193,7 @@ export default function Board() {
 					</div>
 					<DragOverlay>
 						{activeTask ? (
-							<div className="rotate-3">
+							<div className="rotate-2 scale-105">
 								<TaskCard task={activeTask} onClick={() => {}} />
 							</div>
 						) : null}

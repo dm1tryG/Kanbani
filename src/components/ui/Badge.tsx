@@ -3,9 +3,9 @@ import type { HTMLAttributes } from "react";
 const variants = {
 	default: "bg-primary-light text-primary",
 	agent: "bg-accent-light text-accent",
-	warning: "bg-warning-light text-amber-700 animate-pulse",
-	neutral: "bg-surface-tertiary text-text-secondary",
-	count: "bg-surface-tertiary text-text-disabled",
+	warning: "bg-warning-light text-warning animate-pulse",
+	neutral: "bg-surface-dim text-muted",
+	count: "bg-surface-dim text-faint",
 } as const;
 
 type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
@@ -20,7 +20,7 @@ export default function Badge({
 }: BadgeProps) {
 	return (
 		<span
-			className={`inline-block text-caption font-medium px-1.5 py-0.5 rounded-sm ${variants[variant]} ${className}`}
+			className={`inline-block text-caption font-semibold px-2 py-0.5 rounded-md ${variants[variant]} ${className}`}
 			{...props}
 		>
 			{children}

@@ -2,11 +2,13 @@ import type { ButtonHTMLAttributes } from "react";
 
 const variants = {
 	primary:
-		"bg-primary text-white hover:bg-primary-hover disabled:opacity-50 disabled:bg-border-strong disabled:cursor-not-allowed",
-	secondary: "text-text-secondary hover:text-text-primary",
+		"bg-primary text-white hover:bg-primary-hover disabled:opacity-50 disabled:bg-border-strong disabled:cursor-not-allowed shadow-sm hover:shadow-md",
+	secondary: "text-muted hover:text-foreground",
 	destructive: "text-destructive hover:text-destructive-hover",
-	ghost: "text-text-secondary hover:bg-surface-tertiary hover:text-text-primary",
-	success: "bg-success text-white hover:bg-success-hover",
+	ghost: "text-muted hover:bg-surface-dim hover:text-foreground",
+	success: "bg-success text-white hover:bg-success-hover shadow-sm hover:shadow-md",
+	accent:
+		"bg-accent text-white hover:bg-accent-hover disabled:opacity-50 disabled:bg-border-strong disabled:cursor-not-allowed shadow-sm hover:shadow-md",
 } as const;
 
 const sizes = {
@@ -28,7 +30,7 @@ export default function Button({
 }: ButtonProps) {
 	return (
 		<button
-			className={`font-medium rounded-md transition-colors cursor-pointer ${variants[variant]} ${sizes[size]} ${className}`}
+			className={`font-semibold rounded-md transition-all duration-150 cursor-pointer ${variants[variant]} ${sizes[size]} ${className}`}
 			{...props}
 		>
 			{children}

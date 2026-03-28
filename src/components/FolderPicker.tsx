@@ -50,13 +50,13 @@ export default function FolderPicker({ onSelect, onCancel }: FolderPickerProps) 
 	const pathParts = currentPath.split("/").filter(Boolean);
 
 	return (
-		<div className="border border-border rounded-md overflow-hidden bg-surface">
+		<div className="border border-border rounded-lg overflow-hidden bg-surface">
 			{/* Breadcrumb */}
-			<div className="px-3 py-2 bg-surface-secondary border-b border-border flex items-center gap-1 min-h-[36px] overflow-x-auto">
+			<div className="px-3 py-2.5 bg-surface-alt border-b border-border flex items-center gap-1 min-h-[36px] overflow-x-auto">
 				<button
 					type="button"
 					onClick={() => browse("/")}
-					className="text-caption text-primary hover:text-primary-hover font-mono shrink-0 cursor-pointer"
+					className="text-caption text-primary hover:text-primary-hover font-mono shrink-0 cursor-pointer transition-colors"
 				>
 					/
 				</button>
@@ -65,14 +65,14 @@ export default function FolderPicker({ onSelect, onCancel }: FolderPickerProps) 
 					const isLast = i === pathParts.length - 1;
 					return (
 						<span key={fullPath} className="flex items-center gap-1 shrink-0">
-							<span className="text-text-disabled text-caption">/</span>
+							<span className="text-faint text-caption">/</span>
 							{isLast ? (
-								<span className="text-caption font-mono font-medium text-text-primary">{part}</span>
+								<span className="text-caption font-mono font-semibold text-foreground">{part}</span>
 							) : (
 								<button
 									type="button"
 									onClick={() => browse(fullPath)}
-									className="text-caption text-primary hover:text-primary-hover font-mono cursor-pointer"
+									className="text-caption text-primary hover:text-primary-hover font-mono cursor-pointer transition-colors"
 								>
 									{part}
 								</button>
@@ -85,7 +85,7 @@ export default function FolderPicker({ onSelect, onCancel }: FolderPickerProps) 
 			{/* Folder list */}
 			<div className="max-h-[240px] overflow-y-auto">
 				{loading ? (
-					<div className="px-3 py-4 text-body text-text-disabled text-center">Loading...</div>
+					<div className="px-3 py-4 text-body text-faint text-center">Loading...</div>
 				) : error ? (
 					<div className="px-3 py-4 text-body text-destructive text-center">{error}</div>
 				) : (
@@ -94,7 +94,7 @@ export default function FolderPicker({ onSelect, onCancel }: FolderPickerProps) 
 							<button
 								type="button"
 								onClick={goUp}
-								className="w-full px-3 py-2 text-body text-left hover:bg-surface-secondary flex items-center gap-2 text-text-secondary cursor-pointer"
+								className="w-full px-3 py-2.5 text-body text-left hover:bg-surface-alt flex items-center gap-2 text-muted cursor-pointer transition-colors"
 							>
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path
@@ -108,16 +108,14 @@ export default function FolderPicker({ onSelect, onCancel }: FolderPickerProps) 
 							</button>
 						)}
 						{folders.length === 0 ? (
-							<div className="px-3 py-4 text-body text-text-disabled text-center">
-								No subfolders
-							</div>
+							<div className="px-3 py-4 text-body text-faint text-center">No subfolders</div>
 						) : (
 							folders.map((f) => (
 								<button
 									key={f.path}
 									type="button"
 									onClick={() => browse(f.path)}
-									className="w-full px-3 py-2 text-body text-left hover:bg-primary-light flex items-center gap-2 cursor-pointer"
+									className="w-full px-3 py-2.5 text-body text-left hover:bg-primary-light flex items-center gap-2 cursor-pointer transition-colors"
 								>
 									<svg
 										className="w-4 h-4 text-primary shrink-0"
@@ -132,7 +130,7 @@ export default function FolderPicker({ onSelect, onCancel }: FolderPickerProps) 
 											d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
 										/>
 									</svg>
-									<span className="text-text-primary truncate">{f.name}</span>
+									<span className="text-foreground truncate">{f.name}</span>
 								</button>
 							))
 						)}
@@ -141,11 +139,8 @@ export default function FolderPicker({ onSelect, onCancel }: FolderPickerProps) 
 			</div>
 
 			{/* Actions */}
-			<div className="px-3 py-2 bg-surface-secondary border-t border-border flex items-center justify-between">
-				<span
-					className="text-caption text-text-disabled font-mono truncate mr-2"
-					title={currentPath}
-				>
+			<div className="px-3 py-2.5 bg-surface-alt border-t border-border flex items-center justify-between">
+				<span className="text-caption text-faint font-mono truncate mr-2" title={currentPath}>
 					{currentPath}
 				</span>
 				<div className="flex gap-2 shrink-0">
