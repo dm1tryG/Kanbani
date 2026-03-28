@@ -306,7 +306,7 @@ export default function TaskPanel({
 										type="button"
 										className="text-faint hover:text-foreground transition-colors p-1.5 rounded hover:bg-surface-alt"
 										title="Copy command"
-										onClick={() => navigator.clipboard.writeText(`claude --resume ${task.branch}`)}
+										onClick={() => navigator.clipboard.writeText(`cd ${task.folder} && claude --resume ${task.branch}`)}
 									>
 										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 											<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
