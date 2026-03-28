@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execSync, spawn } = require("node:child_process");
+const { execSync } = require("node:child_process");
 const { existsSync, mkdirSync, writeFileSync } = require("node:fs");
 const { join } = require("node:path");
 const { platform } = require("node:os");
@@ -22,31 +22,14 @@ if (!existsSync(BOARD_PATH)) {
 	console.log(`Created board at ${BOARD_PATH}`);
 }
 
-// Build if needed
-const nextDir = join(PKG_DIR, ".next");
-if (!existsSync(nextDir)) {
-	console.log("Building Kanbani (first run)...");
-	execSync("npx next build", { cwd: PKG_DIR, stdio: "inherit" });
-}
-
-// Pick a port
 const PORT = process.env.PORT || 3333;
+const HOSTNAME = process.env.HOSTNAME || "localhost";
 
-console.log(`\n  Kanbani is starting on http://localhost:${PORT}\n`);
-
-// Start Next.js production server
-const server = spawn("npx", ["next", "start", "--port", String(PORT)], {
-	cwd: PKG_DIR,
-	stdio: "inherit",
-	env: {
-		...process.env,
-		BOARD_PATH,
-	},
-});
+console.log(`\n  Kanbani is running on http://${HOSTNAME}:${PORT}\n`);
 
 // Open browser after a short delay
 setTimeout(() => {
-	const url = `http://localhost:${PORT}`;
+	const url = `http://${HOSTNAME}:${PORT}`;
 	try {
 		if (platform() === "darwin") {
 			execSync(`open ${url}`);
@@ -60,12 +43,9 @@ setTimeout(() => {
 	}
 }, 1500);
 
-// Handle shutdown
-process.on("SIGINT", () => {
-	server.kill("SIGINT");
-	process.exit(0);
-});
-process.on("SIGTERM", () => {
-	server.kill("SIGTERM");
-	process.exit(0);
-});
+// Start the standalone Next.js server
+process.env.BOARD_PATH = BOARD_PATH;
+process.env.PORT = String(PORT);
+process.env.HOSTNAME = HOSTNAME;
+
+require(join(PKG_DIR, ".next", "standalone", "server.js"));
