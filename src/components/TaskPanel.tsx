@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Markdown from "react-markdown";
 import type { Task } from "@/types";
 import DiffView from "./DiffView";
-import { Badge, Button, Textarea } from "./ui";
+import { Badge, Button, Textarea, Toast, useToast } from "./ui";
 import { Input } from "./ui/Input";
 
 type TabId = "overview" | "diff";
@@ -43,6 +43,7 @@ export default function TaskPanel({
 	const [diffStats, setDiffStats] = useState<DiffStats | null>(null);
 	const panelRef = useRef<HTMLDivElement>(null);
 	const commentsEndRef = useRef<HTMLDivElement>(null);
+	const { toast, showToast } = useToast();
 
 	useEffect(() => {
 		setTitle(task.title);
@@ -129,6 +130,7 @@ export default function TaskPanel({
 
 	return (
 		<div className="fixed inset-0 z-50 flex justify-end">
+			<Toast message={toast.message} visible={toast.visible} />
 			<div className="absolute inset-0 bg-overlay animate-fade-in" />
 			<div
 				ref={panelRef}
@@ -306,7 +308,10 @@ export default function TaskPanel({
 										type="button"
 										className="text-faint hover:text-foreground transition-colors p-1.5 rounded hover:bg-surface-alt"
 										title="Copy command"
-										onClick={() => navigator.clipboard.writeText(`cd ${task.folder} && claude --resume ${task.branch}`)}
+										onClick={() => {
+											navigator.clipboard.writeText(`cd ${task.folder} && claude --resume ${task.branch}`);
+											showToast("Copied to clipboard");
+										}}
 									>
 										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 											<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
