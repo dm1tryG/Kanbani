@@ -59,6 +59,8 @@ test("project dropdown shows previously used projects", async ({ page }) => {
             description: "",
             column: "todo",
             folder: "/Users/dmitrii/projects/kanbani",
+            comments: [],
+            agentRunning: false,
             createdAt: new Date().toISOString(),
           },
         ],
@@ -106,6 +108,8 @@ test("can open task side panel and see folder", async ({ page }) => {
             description: "Has a project",
             column: "todo",
             folder: "/Users/dmitrii/projects/kanbani",
+            comments: [],
+            agentRunning: false,
             createdAt: new Date().toISOString(),
           },
         ],
@@ -145,6 +149,8 @@ test("can delete a task", async ({ page }) => {
             description: "",
             column: "todo",
             folder: "/tmp",
+            comments: [],
+            agentRunning: false,
             createdAt: new Date().toISOString(),
           },
         ],
@@ -164,4 +170,85 @@ test("can delete a task", async ({ page }) => {
 
   await expect(page.getByText("Delete me")).not.toBeVisible();
   await page.screenshot({ path: "e2e/screenshots/task-deleted.png" });
+});
+
+test("task card shows run button when folder is set", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "test-run",
+            title: "Run me",
+            description: "Test running claude",
+            column: "todo",
+            folder: "/tmp",
+            comments: [],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: ["/tmp"],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+  await expect(page.getByText("Run me")).toBeVisible();
+
+  // Play button should be visible on the task card
+  const card = page.locator("div", { hasText: "Run me" }).first();
+  const playButton = card.locator("button[title='Run Claude agent']");
+  await expect(playButton).toBeVisible();
+  await page.screenshot({ path: "e2e/screenshots/task-with-run-button.png" });
+});
+
+test("task panel shows Run button and comments section", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "test-panel-run",
+            title: "Panel run test",
+            description: "Check panel features",
+            column: "todo",
+            folder: "/tmp",
+            comments: [
+              {
+                id: "comment-1",
+                text: "Agent completed successfully",
+                author: "agent",
+                createdAt: new Date().toISOString(),
+              },
+            ],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: ["/tmp"],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+  await page.getByText("Panel run test").click();
+  await expect(page.getByText("Task Details")).toBeVisible();
+
+  const panel = page.locator(".animate-slide-in");
+
+  // Run button in panel
+  await expect(panel.locator("button", { hasText: "Run" })).toBeVisible();
+
+  // Comments section
+  await expect(panel.getByText("Comments (1)")).toBeVisible();
+  await expect(panel.getByText("Claude Agent")).toBeVisible();
+  await expect(panel.getByText("Agent completed successfully")).toBeVisible();
+  await page.screenshot({ path: "e2e/screenshots/task-panel-with-comments.png" });
 });

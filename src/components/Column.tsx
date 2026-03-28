@@ -2,18 +2,26 @@
 
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import type { ColumnId, Task } from "@/types";
+import type { Task } from "@/types";
 import TaskCard from "./TaskCard";
 
 interface ColumnProps {
-	id: ColumnId;
+	id: string;
 	title: string;
 	tasks: Task[];
 	onTaskClick: (task: Task) => void;
 	onAddTask?: () => void;
+	onRunTask?: (task: Task) => void;
 }
 
-export default function Column({ id, title, tasks, onTaskClick, onAddTask }: ColumnProps) {
+export default function Column({
+	id,
+	title,
+	tasks,
+	onTaskClick,
+	onAddTask,
+	onRunTask,
+}: ColumnProps) {
 	const { setNodeRef, isOver } = useDroppable({ id });
 
 	return (
@@ -42,7 +50,7 @@ export default function Column({ id, title, tasks, onTaskClick, onAddTask }: Col
 			<div ref={setNodeRef} className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[40px]">
 				<SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
 					{tasks.map((task) => (
-						<TaskCard key={task.id} task={task} onClick={onTaskClick} />
+						<TaskCard key={task.id} task={task} onClick={onTaskClick} onRun={onRunTask} />
 					))}
 				</SortableContext>
 			</div>
