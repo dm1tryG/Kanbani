@@ -25,7 +25,7 @@ export default function TaskCard({ task, onClick, onRun }: TaskCardProps) {
 	const folderLabel = task.folder
 		? task.folder.split("/").filter(Boolean).pop() || task.folder
 		: null;
-	const canRun = !!task.folder && !task.agentRunning;
+	const canRun = !!task.folder && !task.agentRunning && !task.sessionId;
 
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: dnd-kit requires div with handlers
