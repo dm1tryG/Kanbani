@@ -44,6 +44,11 @@ export default function TaskPanel({
 	const panelRef = useRef<HTMLDivElement>(null);
 	const commentsEndRef = useRef<HTMLDivElement>(null);
 	const { toast, showToast } = useToast();
+	const [isMac, setIsMac] = useState(false);
+
+	useEffect(() => {
+		setIsMac(navigator.platform.toUpperCase().includes("MAC"));
+	}, []);
 
 	useEffect(() => {
 		setTitle(task.title);
@@ -318,6 +323,27 @@ export default function TaskPanel({
 											<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
 										</svg>
 									</button>
+									{isMac && (
+										<button
+											type="button"
+											className="text-faint hover:text-foreground transition-colors p-1.5 rounded hover:bg-surface-alt"
+											title="Open in Terminal"
+											onClick={async () => {
+												const res = await fetch("/api/terminal", {
+													method: "POST",
+													headers: { "Content-Type": "application/json" },
+													body: JSON.stringify({ command: `cd ${task.folder} && claude --resume ${task.branch}` }),
+												});
+												if (res.ok) showToast("Opened in Terminal");
+												else showToast("Failed to open Terminal");
+											}}
+										>
+											<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+												<polyline points="4 17 10 11 4 5" />
+												<line x1="12" y1="19" x2="20" y2="19" />
+											</svg>
+										</button>
+									)}
 								</div>
 							)}
 
