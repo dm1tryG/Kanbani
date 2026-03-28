@@ -20,6 +20,15 @@ jobs:
 
       - run: npm ci
       - run: npm test
+      - run: npm run build
+        env:
+          BOARD_PATH: /tmp/board.json
+
+      - name: Prepare standalone output
+        run: |
+          cp -r .next/static .next/standalone/.next/static
+          if [ -d public ]; then cp -r public .next/standalone/public; fi
+
       - run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
