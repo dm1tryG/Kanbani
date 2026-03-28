@@ -9,7 +9,7 @@ import {
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ColumnId, Task } from "@/types";
 import { COLUMNS } from "@/types";
 import Column from "./Column";
@@ -23,6 +23,7 @@ export default function Board() {
 	const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 	const [showCreate, setShowCreate] = useState(false);
 	const [activeTask, setActiveTask] = useState<Task | null>(null);
+	const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
@@ -40,6 +41,31 @@ export default function Board() {
 	useEffect(() => {
 		fetchTasks();
 	}, [fetchTasks]);
+
+	// Poll for updates when any agent is running
+	useEffect(() => {
+		const hasRunning = tasks.some((t) => t.agentRunning);
+		if (hasRunning && !pollingRef.current) {
+			pollingRef.current = setInterval(fetchTasks, 3000);
+		} else if (!hasRunning && pollingRef.current) {
+			clearInterval(pollingRef.current);
+			pollingRef.current = null;
+		}
+		return () => {
+			if (pollingRef.current) {
+				clearInterval(pollingRef.current);
+				pollingRef.current = null;
+			}
+		};
+	}, [tasks, fetchTasks]);
+
+	// Keep selectedTask in sync with tasks
+	useEffect(() => {
+		if (selectedTask) {
+			const updated = tasks.find((t) => t.id === selectedTask.id);
+			if (updated) setSelectedTask(updated);
+		}
+	}, [tasks, selectedTask]);
 
 	async function handleCreateTask(title: string, description: string, folder: string) {
 		const res = await fetch("/api/tasks", {
@@ -73,13 +99,23 @@ export default function Board() {
 		});
 		const updated = await res.json();
 		setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
-		setSelectedTask((sel) => (sel?.id === id ? updated : sel));
 	}
 
 	async function handleDeleteTask(id: string) {
 		setTasks((prev) => prev.filter((t) => t.id !== id));
 		setSelectedTask(null);
 		await fetch(`/api/tasks/${id}`, { method: "DELETE" });
+	}
+
+	async function handleRunTask(task: Task) {
+		// Optimistic update
+		setTasks((prev) =>
+			prev.map((t) =>
+				t.id === task.id ? { ...t, column: "inprogress" as ColumnId, agentRunning: true } : t,
+			),
+		);
+
+		await fetch(`/api/tasks/${task.id}/run`, { method: "POST" });
 	}
 
 	function handleDragStart(event: DragStartEvent) {
@@ -133,6 +169,7 @@ export default function Board() {
 								tasks={tasks.filter((t) => t.column === col.id)}
 								onTaskClick={handleTaskClick}
 								onAddTask={col.id === "todo" ? () => setShowCreate(true) : undefined}
+								onRunTask={handleRunTask}
 							/>
 						))}
 					</div>
@@ -152,6 +189,7 @@ export default function Board() {
 					onClose={() => setSelectedTask(null)}
 					onUpdate={handleUpdateTask}
 					onDelete={handleDeleteTask}
+					onRun={handleRunTask}
 				/>
 			)}
 

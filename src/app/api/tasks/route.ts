@@ -12,18 +12,26 @@ async function readBoard(): Promise<BoardData> {
 }
 
 async function writeBoard(data: BoardData): Promise<void> {
-	await writeFile(DATA_PATH, JSON.stringify(data, null, 2) + "\n", "utf-8");
+	await writeFile(DATA_PATH, `${JSON.stringify(data, null, 2)}\n`, "utf-8");
 }
 
 export async function GET() {
 	const board = await readBoard();
 	if (!board.projects) board.projects = [];
+	for (const task of board.tasks) {
+		if (!task.comments) task.comments = [];
+		if (task.agentRunning === undefined) task.agentRunning = false;
+	}
 	return NextResponse.json(board);
 }
 
 export async function POST(request: Request) {
 	const body = await request.json();
-	const { title, description, folder } = body as { title: string; description: string; folder: string };
+	const { title, description, folder } = body as {
+		title: string;
+		description: string;
+		folder: string;
+	};
 
 	if (!title?.trim()) {
 		return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -46,6 +54,8 @@ export async function POST(request: Request) {
 		description: description?.trim() || "",
 		column: "todo",
 		folder: trimmedFolder,
+		comments: [],
+		agentRunning: false,
 		createdAt: new Date().toISOString(),
 	};
 	board.tasks.push(task);
