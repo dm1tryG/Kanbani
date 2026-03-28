@@ -23,6 +23,7 @@ export default function Board() {
 	const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 	const [showCreate, setShowCreate] = useState(false);
 	const [activeTask, setActiveTask] = useState<Task | null>(null);
+	const [selectedProject, setSelectedProject] = useState<string | null>(null);
 	const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const sensors = useSensors(
@@ -182,15 +183,53 @@ export default function Board() {
 		}
 	}
 
+	const filteredTasks = selectedProject
+		? tasks.filter((t) => t.folder === selectedProject)
+		: tasks;
+
+	function getProjectName(folder: string) {
+		return folder.split("/").filter(Boolean).pop() || folder;
+	}
+
 	return (
 		<div className="h-screen flex flex-col">
-			<header className="flex items-center px-6 py-4 bg-surface/70 backdrop-blur-md border-b border-border">
-				<div className="flex items-center gap-2.5">
+			<header className="flex items-center gap-6 px-6 py-4 bg-surface/70 backdrop-blur-md border-b border-border">
+				<div className="flex items-center gap-2.5 shrink-0">
 					<div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center shadow-sm">
 						<span className="text-white font-bold text-body">K</span>
 					</div>
 					<h1 className="text-heading font-bold text-foreground tracking-tight">Kanbani</h1>
 				</div>
+
+				{projects.length > 0 && (
+					<nav className="flex items-center gap-1 overflow-x-auto">
+						<button
+							type="button"
+							onClick={() => setSelectedProject(null)}
+							className={`px-3 py-1.5 rounded-lg text-caption font-semibold transition-colors whitespace-nowrap ${
+								selectedProject === null
+									? "bg-primary text-white"
+									: "text-muted hover:text-foreground hover:bg-surface-dim"
+							}`}
+						>
+							All
+						</button>
+						{projects.map((project) => (
+							<button
+								key={project}
+								type="button"
+								onClick={() => setSelectedProject(project)}
+								className={`px-3 py-1.5 rounded-lg text-caption font-semibold transition-colors whitespace-nowrap ${
+									selectedProject === project
+										? "bg-primary text-white"
+										: "text-muted hover:text-foreground hover:bg-surface-dim"
+								}`}
+							>
+								{getProjectName(project)}
+							</button>
+						))}
+					</nav>
+				)}
 			</header>
 
 			<main className="flex-1 overflow-x-auto p-6">
@@ -201,7 +240,7 @@ export default function Board() {
 								key={col.id}
 								id={col.id}
 								title={col.title}
-								tasks={tasks.filter((t) => t.column === col.id)}
+								tasks={filteredTasks.filter((t) => t.column === col.id)}
 								onTaskClick={handleTaskClick}
 								onAddTask={col.id === "todo" ? () => setShowCreate(true) : undefined}
 								onRunTask={handleRunTask}
