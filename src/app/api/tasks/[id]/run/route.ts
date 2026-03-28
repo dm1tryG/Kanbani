@@ -71,6 +71,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 	if (isResume) {
 		args.push("--resume", task.sessionId as string);
 	}
+	// Name the session after the branch so it can be resumed from terminal
+	if (task.branch) {
+		args.push("--name", task.branch);
+	}
 
 	// Build prompt
 	const prompt = isResume
