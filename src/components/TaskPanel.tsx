@@ -124,7 +124,7 @@ export default function TaskPanel({
 	}
 
 	const canRun = !!task.folder && !task.agentRunning && !task.sessionId;
-	const canComment = !!task.folder && !task.agentRunning && !!task.sessionId;
+	const canComment = !!task.folder && !task.agentRunning && !!task.sessionId && task.column !== "done";
 	const comments = task.comments || [];
 
 	return (
