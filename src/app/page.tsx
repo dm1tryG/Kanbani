@@ -1,7 +1,5 @@
+import Board from "@/components/Board";
+
 export default function Home() {
-	return (
-		<main className="flex min-h-screen items-center justify-center">
-			<h1 className="text-4xl font-bold">Kanbani</h1>
-		</main>
-	);
+	return <Board />;
 }
