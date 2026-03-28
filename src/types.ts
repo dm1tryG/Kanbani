@@ -16,6 +16,7 @@ export interface Task {
 	comments: Comment[];
 	agentRunning: boolean;
 	sessionId?: string;
+	branch?: string;
 	createdAt: string;
 }
 

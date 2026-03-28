@@ -169,3 +169,35 @@ body {
   border-top: 1px solid var(--color-border);
   margin: 0.6em 0;
 }
+
+/* ============================================
+   DIFF VIEW — warm overrides for react-diff-view
+   ============================================ */
+
+.diff-container {
+  --diff-background-color: var(--color-surface);
+  --diff-text-color: var(--color-foreground);
+  --diff-font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --diff-gutter-insert-background-color: #ddf4dd;
+  --diff-gutter-delete-background-color: #f9dedc;
+  --diff-code-insert-background-color: #ecf7ec;
+  --diff-code-delete-background-color: #fdf0ef;
+  --diff-code-insert-edit-background-color: #b8e2b8;
+  --diff-code-delete-edit-background-color: #f0b8b5;
+  --diff-selection-background-color: var(--color-primary-light);
+}
+
+.diff-container .diff {
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.diff-container .diff-gutter {
+  color: var(--color-faint);
+  font-size: 11px;
+  min-width: 4ch;
+}
+
+.diff-container .diff-gutter-omit::before {
+  background-color: var(--color-border);
+}
