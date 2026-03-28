@@ -58,9 +58,24 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			}
 		}
 
-		// If branch diff is empty, fall back to uncommitted changes (staged + unstaged)
+		// If branch diff is empty, fall back to uncommitted changes (staged + unstaged + untracked)
 		let uncommitted = false;
+		let addedIntentToAdd = false;
 		if (!diff.trim()) {
+			// Mark untracked files with intent-to-add so git diff can see them
+			try {
+				const untracked = execSync(`git ls-files --others --exclude-standard`, {
+					cwd,
+					encoding: "utf-8",
+				}).trim();
+				if (untracked) {
+					execSync("git add -N .", { cwd, stdio: "pipe" });
+					addedIntentToAdd = true;
+				}
+			} catch {
+				// ignore
+			}
+
 			try {
 				diff = execSync(`git diff HEAD`, {
 					cwd,
@@ -71,7 +86,6 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			} catch {
 				diff = "";
 			}
-			// Also include staged but not yet diffed against HEAD — pick up untracked via diff --cached
 			if (!diff.trim()) {
 				try {
 					diff = execSync(`git diff --cached`, {
@@ -130,6 +144,15 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			}),
 			{ additions: 0, deletions: 0 },
 		);
+
+		// Clean up intent-to-add markers
+		if (addedIntentToAdd) {
+			try {
+				execSync("git reset", { cwd, stdio: "pipe" });
+			} catch {
+				// ignore
+			}
+		}
 
 		return NextResponse.json({ branch, diff, files, stats, uncommitted });
 	} catch (error) {

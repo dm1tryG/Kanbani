@@ -60,6 +60,25 @@ export function mergeAndCleanup(
 	}
 
 	try {
+		// Auto-commit any uncommitted changes in the worktree
+		try {
+			const status = execSync("git status --porcelain", {
+				cwd: worktreePath,
+				encoding: "utf-8",
+				stdio: "pipe",
+			}).trim();
+			if (status) {
+				execSync("git add -A", { cwd: worktreePath, stdio: "pipe" });
+				execSync('git commit -m "chore: auto-commit uncommitted changes"', {
+					cwd: worktreePath,
+					encoding: "utf-8",
+					stdio: "pipe",
+				});
+			}
+		} catch {
+			// ignore — worktree may not exist
+		}
+
 		// Check if there are any commits to merge
 		const diffCount = execSync(`git rev-list --count ${baseBranch}..${branch}`, {
 			cwd: projectFolder,
