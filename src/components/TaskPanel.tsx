@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Markdown from "react-markdown";
 import type { Task } from "@/types";
 import { Badge, Button, Textarea } from "./ui";
 import { Input } from "./ui/Input";
@@ -203,9 +204,15 @@ export default function TaskPanel({
 												{new Date(comment.createdAt).toLocaleString()}
 											</span>
 										</div>
-										<pre className="whitespace-pre-wrap break-words text-muted font-mono text-code max-h-60 overflow-y-auto leading-relaxed">
-											{comment.text}
-										</pre>
+										{comment.author === "agent" ? (
+											<div className="prose-comment max-h-60 overflow-y-auto text-muted text-caption leading-relaxed">
+												<Markdown>{comment.text}</Markdown>
+											</div>
+										) : (
+											<pre className="whitespace-pre-wrap break-words text-muted font-mono text-code max-h-60 overflow-y-auto leading-relaxed">
+												{comment.text}
+											</pre>
+										)}
 									</div>
 								))}
 								<div ref={commentsEndRef} />
@@ -226,11 +233,7 @@ export default function TaskPanel({
 								rows={1}
 								className="flex-1 px-3 py-2.5 bg-surface border border-border-strong rounded-md text-body text-foreground placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors resize-none"
 							/>
-							<Button
-								variant="accent"
-								onClick={handleSendComment}
-								disabled={!commentText.trim()}
-							>
+							<Button variant="accent" onClick={handleSendComment} disabled={!commentText.trim()}>
 								Send
 							</Button>
 						</div>
