@@ -115,7 +115,26 @@ export default function Board() {
 			),
 		);
 
-		await fetch(`/api/tasks/${task.id}/run`, { method: "POST" });
+		await fetch(`/api/tasks/${task.id}/run`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({}),
+		});
+	}
+
+	async function handleCommentTask(task: Task, comment: string) {
+		// Optimistic update
+		setTasks((prev) =>
+			prev.map((t) =>
+				t.id === task.id ? { ...t, column: "inprogress" as ColumnId, agentRunning: true } : t,
+			),
+		);
+
+		await fetch(`/api/tasks/${task.id}/run`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ comment }),
+		});
 	}
 
 	function handleDragStart(event: DragStartEvent) {
@@ -190,6 +209,7 @@ export default function Board() {
 					onUpdate={handleUpdateTask}
 					onDelete={handleDeleteTask}
 					onRun={handleRunTask}
+					onComment={handleCommentTask}
 				/>
 			)}
 

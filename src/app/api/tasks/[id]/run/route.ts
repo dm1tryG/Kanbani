@@ -16,8 +16,11 @@ async function writeBoard(data: BoardData): Promise<void> {
 	await writeFile(DATA_PATH, `${JSON.stringify(data, null, 2)}\n`, "utf-8");
 }
 
-export async function POST(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
+
+	const body = await request.json().catch(() => ({}));
+	const userComment: string | undefined = body.comment;
 
 	const board = await readBoard();
 	const task = board.tasks.find((t) => t.id === id);
@@ -37,13 +40,33 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
 	task.column = "inprogress";
 	task.agentRunning = true;
 	if (!task.comments) task.comments = [];
+
+	// If user sent a comment, add it before running
+	if (userComment) {
+		task.comments.push({
+			id: uuidv4(),
+			text: userComment,
+			author: "user",
+			createdAt: new Date().toISOString(),
+		});
+	}
+
 	await writeBoard(board);
 
-	// Build prompt from task title + description
-	const prompt = [task.title, task.description].filter(Boolean).join("\n\n");
+	// Build CLI args
+	const isResume = !!task.sessionId && !!userComment;
+	const args = ["--print", "--output-format", "json", "--dangerously-skip-permissions"];
+	if (isResume) {
+		args.push("--resume", task.sessionId as string);
+	}
 
-	// Spawn claude CLI — pass prompt via stdin to avoid shell escaping issues
-	const child = spawn("claude", ["--print", "--dangerously-skip-permissions"], {
+	// Build prompt
+	const prompt = isResume
+		? userComment
+		: [task.title, task.description].filter(Boolean).join("\n\n");
+
+	// Spawn claude CLI
+	const child = spawn("claude", args, {
 		cwd: task.folder,
 		shell: true,
 		stdio: ["pipe", "pipe", "pipe"],
@@ -74,9 +97,22 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
 
 			if (code === 0) {
 				task.column = "testing";
+
+				// Parse JSON output to extract result and session_id
+				let resultText = stdout.trim() || "(no output)";
+				try {
+					const parsed = JSON.parse(stdout);
+					resultText = parsed.result || resultText;
+					if (parsed.session_id) {
+						task.sessionId = parsed.session_id;
+					}
+				} catch {
+					// Not JSON — use raw output
+				}
+
 				task.comments.push({
 					id: uuidv4(),
-					text: stdout.trim() || "(no output)",
+					text: resultText,
 					author: "agent",
 					createdAt: new Date().toISOString(),
 				});
@@ -97,5 +133,5 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
 		}
 	});
 
-	return NextResponse.json({ ok: true, message: "Agent started" });
+	return NextResponse.json({ ok: true, message: isResume ? "Agent resumed" : "Agent started" });
 }
