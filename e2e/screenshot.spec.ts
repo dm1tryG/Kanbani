@@ -143,6 +143,10 @@ test("capture demo board screenshot", async ({ browser }) => {
 	await page.waitForSelector("h1");
 	await page.waitForTimeout(500);
 
+	// Click on a task to open the side panel
+	await page.getByText("Implement dark mode").click();
+	await page.waitForTimeout(400);
+
 	await page.screenshot({
 		path: "e2e/screenshots/demo-board.png",
 		fullPage: false,
