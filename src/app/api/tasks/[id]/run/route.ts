@@ -42,12 +42,15 @@ export async function POST(_request: NextRequest, { params }: { params: Promise<
 	// Build prompt from task title + description
 	const prompt = [task.title, task.description].filter(Boolean).join("\n\n");
 
-	// Spawn claude CLI in background — don't await, let it run
-	const child = spawn("claude", ["--print", "--dangerously-skip-permissions", prompt], {
+	// Spawn claude CLI — pass prompt via stdin to avoid shell escaping issues
+	const child = spawn("claude", ["--print", "--dangerously-skip-permissions"], {
 		cwd: task.folder,
 		shell: true,
-		stdio: ["ignore", "pipe", "pipe"],
+		stdio: ["pipe", "pipe", "pipe"],
 	});
+
+	child.stdin.write(prompt);
+	child.stdin.end();
 
 	let stdout = "";
 	let stderr = "";
