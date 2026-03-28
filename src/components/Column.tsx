@@ -4,6 +4,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { Task } from "@/types";
 import TaskCard from "./TaskCard";
+import { Badge } from "./ui";
 
 interface ColumnProps {
 	id: string;
@@ -26,22 +27,20 @@ export default function Column({
 
 	return (
 		<div
-			className={`bg-gray-100 rounded-xl w-72 flex-shrink-0 flex flex-col max-h-full ${
-				isOver ? "bg-gray-200" : ""
+			className={`bg-surface-tertiary rounded-lg w-72 flex-shrink-0 flex flex-col max-h-full ${
+				isOver ? "bg-border" : ""
 			}`}
 		>
 			<div className="flex items-center justify-between px-3 pt-3 pb-1">
 				<div className="flex items-center gap-2">
-					<h2 className="text-sm font-semibold text-gray-700">{title}</h2>
-					<span className="text-xs text-gray-400 bg-gray-200 rounded-full px-2 py-0.5">
-						{tasks.length}
-					</span>
+					<h2 className="text-body font-semibold text-text-secondary">{title}</h2>
+					<Badge variant="count">{tasks.length}</Badge>
 				</div>
 				{onAddTask && (
 					<button
 						onClick={onAddTask}
 						type="button"
-						className="text-gray-400 hover:text-gray-600 text-xl leading-none pb-0.5 cursor-pointer"
+						className="text-text-disabled hover:text-text-secondary text-xl leading-none pb-0.5 cursor-pointer"
 					>
 						+
 					</button>

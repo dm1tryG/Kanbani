@@ -72,6 +72,10 @@ Screenshots must be attached to every PR via a comment. Use this process:
 ## Git
 - **Never** add `Co-Authored-By` lines to commits. All commits are authored solely by the user.
 
+## UI System
+- **Read [`UIkit.md`](UIkit.md) before creating or modifying any UI component.** It defines all colors, typography, components, and rules.
+- **All UI must use design tokens and shared components from `src/components/ui/`.** No raw hex colors, no hardcoded Tailwind color classes (like `text-blue-600`), no raw `<button>`/`<input>` with inline styling. Use `<Button>`, `<Badge>`, `<Input>`, `<Textarea>`, `<IconButton>`.
+
 ## Tone
 - You're the user's bro. Be direct, casual, and efficient.
 - Grill hard on the 5 questions, then execute without hesitation.

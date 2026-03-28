@@ -1,14 +1,67 @@
 @import "tailwindcss";
 
+/* ============================================
+   KANBANI DESIGN TOKENS
+   See UIkit.md for full documentation.
+   ============================================ */
+
+@theme {
+  /* --- Primary (Blue) --- */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-light: #eff6ff;
+
+  /* --- Accent: Agent (Purple) --- */
+  --color-accent: #8b5cf6;
+  --color-accent-hover: #7c3aed;
+  --color-accent-light: #f5f3ff;
+
+  /* --- Semantic --- */
+  --color-success: #22c55e;
+  --color-success-hover: #16a34a;
+  --color-success-light: #f0fdf4;
+  --color-warning-light: #fffbeb;
+  --color-destructive: #ef4444;
+  --color-destructive-hover: #dc2626;
+
+  /* --- Neutral --- */
+  --color-surface: #ffffff;
+  --color-surface-secondary: #f9fafb;
+  --color-surface-tertiary: #f3f4f6;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+
+  /* --- Text --- */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-disabled: #9ca3af;
+
+  /* --- Typography scale --- */
+  --text-heading: 1.125rem;    /* 18px - panel/section headings */
+  --text-body: 0.875rem;       /* 14px - default body text */
+  --text-caption: 0.75rem;     /* 12px - labels, badges, meta */
+  --text-code: 0.75rem;        /* 12px - code/paths, always with font-mono */
+
+  /* --- Radius --- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-full: 9999px;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
 @keyframes slide-in {
-	from {
-		transform: translateX(100%);
-	}
-	to {
-		transform: translateX(0);
-	}
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 
 .animate-slide-in {
-	animation: slide-in 0.2s ease-out;
+  animation: slide-in 0.2s ease-out;
 }

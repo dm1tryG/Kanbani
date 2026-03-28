@@ -108,7 +108,6 @@ export default function Board() {
 	}
 
 	async function handleRunTask(task: Task) {
-		// Optimistic update
 		setTasks((prev) =>
 			prev.map((t) =>
 				t.id === task.id ? { ...t, column: "inprogress" as ColumnId, agentRunning: true } : t,
@@ -123,7 +122,6 @@ export default function Board() {
 	}
 
 	async function handleCommentTask(task: Task, comment: string) {
-		// Optimistic update
 		setTasks((prev) =>
 			prev.map((t) =>
 				t.id === task.id ? { ...t, column: "inprogress" as ColumnId, agentRunning: true } : t,
@@ -172,9 +170,9 @@ export default function Board() {
 	}
 
 	return (
-		<div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 to-gray-100">
-			<header className="flex items-center px-6 py-3 bg-white/80 backdrop-blur border-b border-gray-200">
-				<h1 className="text-xl font-bold text-gray-800">Kanbani</h1>
+		<div className="h-screen flex flex-col bg-gradient-to-br from-primary-light to-surface-tertiary">
+			<header className="flex items-center px-6 py-3 bg-surface/80 backdrop-blur border-b border-border">
+				<h1 className="text-heading font-bold text-text-primary">Kanbani</h1>
 			</header>
 
 			<main className="flex-1 overflow-x-auto p-6">
