@@ -452,6 +452,126 @@ test("task without worktree does not show merge buttons", async ({ page }) => {
   await page.screenshot({ path: "e2e/screenshots/task-no-worktree-no-merge.png" });
 });
 
+test("project filter tabs filter tasks on the board", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "filter-1",
+            title: "Kanbani task",
+            description: "",
+            column: "todo",
+            folder: "/Users/dmitrii/projects/kanbani",
+            comments: [],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "filter-2",
+            title: "Other project task",
+            description: "",
+            column: "todo",
+            folder: "/Users/dmitrii/projects/other-app",
+            comments: [],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: [
+          "/Users/dmitrii/projects/kanbani",
+          "/Users/dmitrii/projects/other-app",
+        ],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+
+  // Both tasks visible by default (All tab)
+  await expect(page.getByText("Kanbani task")).toBeVisible();
+  await expect(page.getByText("Other project task")).toBeVisible();
+
+  // Project tabs should be visible
+  const allTab = page.locator("nav button", { hasText: "All" });
+  await expect(allTab).toBeVisible();
+  await expect(page.locator("nav button", { hasText: "kanbani" })).toBeVisible();
+  await expect(page.locator("nav button", { hasText: "other-app" })).toBeVisible();
+
+  // Click kanbani tab — only kanbani task visible
+  await page.locator("nav button", { hasText: "kanbani" }).click();
+  await expect(page.getByText("Kanbani task")).toBeVisible();
+  await expect(page.getByText("Other project task")).not.toBeVisible();
+
+  // Click other-app tab — only other task visible
+  await page.locator("nav button", { hasText: "other-app" }).click();
+  await expect(page.getByText("Kanbani task")).not.toBeVisible();
+  await expect(page.getByText("Other project task")).toBeVisible();
+
+  // Click All tab — both visible again
+  await allTab.click();
+  await expect(page.getByText("Kanbani task")).toBeVisible();
+  await expect(page.getByText("Other project task")).toBeVisible();
+
+  await page.screenshot({ path: "e2e/screenshots/project-filter-tabs.png" });
+});
+
+test("creating task with active project tab pre-selects that project", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "preset-1",
+            title: "Existing task",
+            description: "",
+            column: "todo",
+            folder: "/Users/dmitrii/projects/kanbani",
+            comments: [],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "preset-2",
+            title: "Other task",
+            description: "",
+            column: "todo",
+            folder: "/Users/dmitrii/projects/other-app",
+            comments: [],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: [
+          "/Users/dmitrii/projects/kanbani",
+          "/Users/dmitrii/projects/other-app",
+        ],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+
+  // Select "other-app" tab
+  await page.locator("nav button", { hasText: "other-app" }).click();
+
+  // Open create modal
+  await page.locator("button", { hasText: "+" }).click();
+  await expect(page.getByText("Create Task")).toBeVisible();
+
+  // Project dropdown should show "other-app" pre-selected
+  const modal = page.locator(".animate-scale-in");
+  await expect(modal.locator("button", { hasText: "other-app" })).toBeVisible();
+
+  await page.screenshot({ path: "e2e/screenshots/create-task-preselected-project.png" });
+});
+
 test("multiple tasks in different columns — parallel worktrees", async ({ page }) => {
   writeFileSync(
     DATA_PATH,
