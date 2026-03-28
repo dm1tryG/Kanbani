@@ -273,6 +273,7 @@ export default function Board() {
 			{showCreate && (
 				<CreateTaskModal
 					projects={projects}
+					defaultProject={selectedProject}
 					onClose={() => setShowCreate(false)}
 					onCreate={handleCreateTask}
 				/>

@@ -7,6 +7,7 @@ import { Input, Textarea } from "./ui/Input";
 
 interface CreateTaskModalProps {
 	projects: string[];
+	defaultProject?: string | null;
 	onClose: () => void;
 	onCreate: (title: string, description: string, folder: string) => void;
 }
@@ -15,10 +16,10 @@ function folderLabel(path: string): string {
 	return path.split("/").filter(Boolean).pop() || path;
 }
 
-export default function CreateTaskModal({ projects, onClose, onCreate }: CreateTaskModalProps) {
+export default function CreateTaskModal({ projects, defaultProject, onClose, onCreate }: CreateTaskModalProps) {
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
-	const [folder, setFolder] = useState(projects[0] || "");
+	const [folder, setFolder] = useState(defaultProject || projects[0] || "");
 	const [showDropdown, setShowDropdown] = useState(false);
 	const [showPicker, setShowPicker] = useState(projects.length === 0);
 	const modalRef = useRef<HTMLDivElement>(null);
