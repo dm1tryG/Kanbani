@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
 
-const DATA_PATH = join(process.cwd(), "data", "board.json");
+const DATA_PATH = join(process.cwd(), "data", "board.test.json");
 
 test.beforeEach(() => {
   writeFileSync(

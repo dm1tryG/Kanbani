@@ -1,19 +1,7 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import type { BoardData, ColumnId, Task } from "@/types";
-
-const DATA_PATH = join(process.cwd(), "data", "board.json");
-
-async function readBoard(): Promise<BoardData> {
-	const raw = await readFile(DATA_PATH, "utf-8");
-	return JSON.parse(raw);
-}
-
-async function writeBoard(data: BoardData): Promise<void> {
-	await writeFile(DATA_PATH, `${JSON.stringify(data, null, 2)}\n`, "utf-8");
-}
+import { readBoard, writeBoard } from "@/lib/board";
+import type { ColumnId, Task } from "@/types";
 
 export async function GET() {
 	const board = await readBoard();
