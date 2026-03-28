@@ -1,7 +1,21 @@
 {
 	"name": "kanbani",
-	"version": "1.0.0",
-	"description": "",
+	"version": "0.0.1",
+	"description": "AI-powered kanban board for Claude Code. Manage tasks, run agents, review diffs — all from a warm, cozy UI.",
+	"bin": {
+		"kanbani": "./bin/kanbani.js"
+	},
+	"files": [
+		"bin/",
+		"src/",
+		"public/",
+		"data/.gitkeep",
+		"package.json",
+		"tsconfig.json",
+		"next.config.ts",
+		"postcss.config.mjs",
+		"biome.json"
+	],
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
@@ -17,9 +31,17 @@
 		"type": "git",
 		"url": "git+https://github.com/dm1tryG/Kanbani.git"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"keywords": [
+		"kanban",
+		"claude",
+		"claude-code",
+		"ai",
+		"agent",
+		"task-management",
+		"developer-tools"
+	],
+	"author": "dm1tryG",
+	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/dm1tryG/Kanbani/issues"
 	},
