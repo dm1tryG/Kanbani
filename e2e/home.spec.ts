@@ -291,9 +291,6 @@ test("task with sessionId shows comment input", async ({ page }) => {
 
   const panel = page.locator(".animate-slide-in");
 
-  // Session indicator
-  await expect(panel.getByText("Session active")).toBeVisible();
-
   // Comment input should be visible
   await expect(panel.getByPlaceholder("Add a comment for Claude...")).toBeVisible();
   await expect(panel.locator("button", { hasText: "Send" })).toBeVisible();
@@ -337,9 +334,6 @@ test("task without sessionId does not show comment input", async ({ page }) => {
   await expect(page.getByText("Task Details")).toBeVisible();
 
   const panel = page.locator(".animate-slide-in");
-
-  // No session indicator
-  await expect(panel.getByText("Session active")).not.toBeVisible();
 
   // No comment input
   await expect(panel.getByPlaceholder("Add a comment for Claude...")).not.toBeVisible();

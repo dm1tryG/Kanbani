@@ -282,12 +282,6 @@ export default function TaskPanel({
 
 							<div className="text-caption text-faint flex items-center gap-3 flex-wrap">
 								<span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
-								{task.sessionId && (
-									<span className="flex items-center gap-1 text-success" title={task.sessionId}>
-										<span className="w-1.5 h-1.5 rounded-full bg-success" />
-										Session active
-									</span>
-								)}
 								{task.worktreePath && (
 									<span className="flex items-center gap-1 text-accent" title={task.worktreePath}>
 										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-label="Worktree">
