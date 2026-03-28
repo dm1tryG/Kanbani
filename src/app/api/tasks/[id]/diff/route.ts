@@ -34,6 +34,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 
 		// Get the diff against main
 		let diff = "";
+		let diffBase = "main";
 		try {
 			diff = execSync(`git diff main...HEAD`, {
 				cwd: task.folder,
@@ -48,26 +49,60 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 					encoding: "utf-8",
 					maxBuffer: 10 * 1024 * 1024,
 				});
+				diffBase = "master";
 			} catch {
 				diff = "";
 			}
 		}
 
+		// If branch diff is empty, fall back to uncommitted changes (staged + unstaged)
+		let uncommitted = false;
+		if (!diff.trim()) {
+			try {
+				diff = execSync(`git diff HEAD`, {
+					cwd: task.folder,
+					encoding: "utf-8",
+					maxBuffer: 10 * 1024 * 1024,
+				});
+				uncommitted = true;
+			} catch {
+				diff = "";
+			}
+			// Also include staged but not yet diffed against HEAD — pick up untracked via diff --cached
+			if (!diff.trim()) {
+				try {
+					diff = execSync(`git diff --cached`, {
+						cwd: task.folder,
+						encoding: "utf-8",
+						maxBuffer: 10 * 1024 * 1024,
+					});
+					uncommitted = true;
+				} catch {
+					diff = "";
+				}
+			}
+		}
+
 		// Get numstat for precise +/- counts
 		let numstat = "";
+		const numstatCmd = uncommitted
+			? `git diff HEAD --numstat`
+			: `git diff ${diffBase}...HEAD --numstat`;
 		try {
-			numstat = execSync(`git diff main...HEAD --numstat`, {
+			numstat = execSync(numstatCmd, {
 				cwd: task.folder,
 				encoding: "utf-8",
 			});
 		} catch {
-			try {
-				numstat = execSync(`git diff master...HEAD --numstat`, {
-					cwd: task.folder,
-					encoding: "utf-8",
-				});
-			} catch {
-				numstat = "";
+			if (!uncommitted) {
+				try {
+					numstat = execSync(`git diff master...HEAD --numstat`, {
+						cwd: task.folder,
+						encoding: "utf-8",
+					});
+				} catch {
+					numstat = "";
+				}
 			}
 		}
 
@@ -93,7 +128,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			{ additions: 0, deletions: 0 },
 		);
 
-		return NextResponse.json({ branch, diff, files, stats });
+		return NextResponse.json({ branch, diff, files, stats, uncommitted });
 	} catch (error) {
 		const message = error instanceof Error ? error.message : "Unknown error";
 		return NextResponse.json({ error: message }, { status: 500 });
