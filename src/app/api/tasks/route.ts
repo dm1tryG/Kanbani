@@ -17,23 +17,35 @@ async function writeBoard(data: BoardData): Promise<void> {
 
 export async function GET() {
 	const board = await readBoard();
+	if (!board.projects) board.projects = [];
 	return NextResponse.json(board);
 }
 
 export async function POST(request: Request) {
 	const body = await request.json();
-	const { title, description } = body as { title: string; description: string };
+	const { title, description, folder } = body as { title: string; description: string; folder: string };
 
 	if (!title?.trim()) {
 		return NextResponse.json({ error: "Title is required" }, { status: 400 });
 	}
+	if (!folder?.trim()) {
+		return NextResponse.json({ error: "Folder is required" }, { status: 400 });
+	}
 
 	const board = await readBoard();
+	if (!board.projects) board.projects = [];
+
+	const trimmedFolder = folder.trim();
+	if (!board.projects.includes(trimmedFolder)) {
+		board.projects.push(trimmedFolder);
+	}
+
 	const task: Task = {
 		id: uuidv4(),
 		title: title.trim(),
 		description: description?.trim() || "",
 		column: "todo",
+		folder: trimmedFolder,
 		createdAt: new Date().toISOString(),
 	};
 	board.tasks.push(task);

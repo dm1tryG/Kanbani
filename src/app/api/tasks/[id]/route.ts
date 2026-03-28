@@ -17,9 +17,10 @@ async function writeBoard(data: BoardData): Promise<void> {
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
 	const body = await request.json();
-	const { title, description } = body as {
+	const { title, description, folder } = body as {
 		title: string;
 		description: string;
+		folder: string;
 	};
 
 	const board = await readBoard();
@@ -30,6 +31,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 	if (title !== undefined) task.title = title.trim();
 	if (description !== undefined) task.description = description.trim();
+	if (folder !== undefined) task.folder = folder.trim();
 	await writeBoard(board);
 
 	return NextResponse.json(task);

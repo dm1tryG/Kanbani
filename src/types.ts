@@ -5,11 +5,13 @@ export interface Task {
 	title: string;
 	description: string;
 	column: ColumnId;
+	folder: string;
 	createdAt: string;
 }
 
 export interface BoardData {
 	tasks: Task[];
+	projects: string[];
 }
 
 export const COLUMNS: { id: ColumnId; title: string }[] = [
