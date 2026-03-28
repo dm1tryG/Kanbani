@@ -25,9 +25,13 @@
 	},
 	"homepage": "https://github.com/dm1tryG/Kanbani#readme",
 	"dependencies": {
+		"@dnd-kit/core": "^6.3.1",
+		"@dnd-kit/sortable": "^10.0.0",
+		"@dnd-kit/utilities": "^3.2.2",
 		"next": "^16.2.1",
 		"react": "^19.2.4",
-		"react-dom": "^19.2.4"
+		"react-dom": "^19.2.4",
+		"uuid": "^13.0.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.9",
@@ -37,6 +41,7 @@
 		"@testing-library/react": "^16.3.2",
 		"@types/node": "^25.5.0",
 		"@types/react": "^19.2.14",
+		"@types/uuid": "^10.0.0",
 		"@vitejs/plugin-react": "^6.0.1",
 		"jsdom": "^29.0.1",
 		"playwright": "^1.58.2",
