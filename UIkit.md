@@ -170,6 +170,22 @@ import { IconButton } from "@/components/ui";
 
 ---
 
+### `<Toast>` + `useToast()`
+Located: `src/components/ui/Toast.tsx`
+
+```tsx
+import { Toast, useToast } from "@/components/ui";
+
+const { toast, showToast } = useToast(2000); // duration in ms, default 2000
+
+<Toast message={toast.message} visible={toast.visible} />
+<button onClick={() => showToast("Copied!")}>Copy</button>
+```
+
+Fixed to top-center of screen. Dark (`bg-foreground`) pill with white text, `shadow-dropdown`, auto-dismisses after duration.
+
+---
+
 ## Animations
 
 | Class              | Effect                         | Duration |

@@ -390,8 +390,11 @@ test("task with worktree shows branch and merge/discard buttons", async ({ page 
   // Worktree indicator
   await expect(panel.getByText("Worktree", { exact: true })).toBeVisible();
 
-  // Branch name
-  await expect(panel.getByText("task/worktree-task-abc123")).toBeVisible();
+  // Branch name (in the badge span)
+  await expect(panel.locator("span.font-mono", { hasText: "task/worktree-task-abc123" })).toBeVisible();
+
+  // Resume command
+  await expect(panel.locator("code", { hasText: "claude --resume task/worktree-task-abc123" })).toBeVisible();
 
   // Merge & Done button
   await expect(panel.locator("button", { hasText: "Merge" })).toBeVisible();
