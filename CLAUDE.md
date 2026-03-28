@@ -41,6 +41,33 @@ Wait for answers. Then proceed.
 - **Browser/agent tests**: tests that run in a real or headless browser environment. **Always capture screenshots** during browser/agent tests and attach them as comments on the PR for visual review.
 - Test files live alongside the code or in a dedicated `tests/` or `e2e/` directory.
 - All tests must pass before pushing.
+- **Screenshots are NOT committed to the repo.** They are uploaded externally and linked in PR comments.
+
+## Attaching Screenshots to PRs
+Screenshots must be attached to every PR via a comment. Use this process:
+
+1. Run e2e tests — they save screenshots to `e2e/screenshots/`.
+2. Create a **draft GitHub release** as a temporary asset host:
+   ```bash
+   gh release create screenshots-temp --title "temp" --notes "temp" --draft
+   ```
+3. Upload screenshot files to the release:
+   ```bash
+   gh release upload screenshots-temp e2e/screenshots/*.png
+   ```
+4. Get the download URLs:
+   ```bash
+   gh release view screenshots-temp --json assets --jq '.assets[].url'
+   ```
+5. Post a PR comment with the images using the URLs:
+   ```bash
+   gh pr comment <PR_NUMBER> --body "$(cat <<EOF
+   ## E2E Screenshots
+   ![description](URL_FROM_STEP_4)
+   EOF
+   )"
+   ```
+6. **Do NOT** commit screenshots to the repo — they are gitignored.
 
 ## Git
 - **Never** add `Co-Authored-By` lines to commits. All commits are authored solely by the user.
