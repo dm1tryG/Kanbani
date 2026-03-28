@@ -2,6 +2,7 @@ import { execSync, spawn } from "node:child_process";
 import { type NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { readBoard, writeBoard } from "@/lib/board";
+import { createWorktree, getTaskCwd } from "@/lib/worktree";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
@@ -38,10 +39,34 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		});
 	}
 
+	// Create worktree for first run (not resume)
+	const isResume = !!task.sessionId && !!userComment;
+	if (!isResume && !task.worktreePath) {
+		try {
+			const { worktreePath, branch } = createWorktree(task.folder, task.id, task.title);
+			task.worktreePath = worktreePath;
+			task.branch = branch;
+		} catch (e) {
+			task.agentRunning = false;
+			task.column = "todo";
+			const msg = e instanceof Error ? e.message : String(e);
+			task.comments.push({
+				id: uuidv4(),
+				text: `Failed to create worktree:\n${msg}`,
+				author: "agent",
+				createdAt: new Date().toISOString(),
+			});
+			await writeBoard(board);
+			return NextResponse.json({ error: "Failed to create worktree" }, { status: 500 });
+		}
+	}
+
 	await writeBoard(board);
 
+	// Determine working directory — use worktree if available
+	const cwd = getTaskCwd(task);
+
 	// Build CLI args
-	const isResume = !!task.sessionId && !!userComment;
 	const args = ["--print", "--output-format", "json", "--dangerously-skip-permissions"];
 	if (isResume) {
 		args.push("--resume", task.sessionId as string);
@@ -52,9 +77,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		? userComment
 		: [task.title, task.description].filter(Boolean).join("\n\n");
 
-	// Spawn claude CLI
+	// Spawn claude CLI in worktree directory
 	const child = spawn("claude", args, {
-		cwd: task.folder,
+		cwd,
 		shell: true,
 		stdio: ["pipe", "pipe", "pipe"],
 	});
@@ -85,10 +110,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 			if (code === 0) {
 				task.column = "testing";
 
-				// Detect current branch
+				// Detect current branch in worktree
+				const taskCwd = getTaskCwd(task);
 				try {
 					const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-						cwd: task.folder,
+						cwd: taskCwd,
 						encoding: "utf-8",
 					}).trim();
 					task.branch = branch;

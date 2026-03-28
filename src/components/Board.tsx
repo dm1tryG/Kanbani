@@ -88,6 +88,23 @@ export default function Board() {
 		});
 	}
 
+	async function handleMergeTask(task: Task) {
+		const res = await fetch(`/api/tasks/${task.id}/merge`, { method: "POST" });
+		const data = await res.json();
+		if (res.ok) {
+			await fetchTasks();
+		} else {
+			alert(`Merge failed: ${data.error}`);
+		}
+	}
+
+	async function handleDiscardWorktree(task: Task) {
+		const res = await fetch(`/api/tasks/${task.id}/merge`, { method: "DELETE" });
+		if (res.ok) {
+			await fetchTasks();
+		}
+	}
+
 	async function handleUpdateTask(id: string, data: { title: string; description: string }) {
 		setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...data } : t)));
 		const res = await fetch(`/api/tasks/${id}`, {
@@ -209,6 +226,8 @@ export default function Board() {
 					onDelete={handleDeleteTask}
 					onRun={handleRunTask}
 					onComment={handleCommentTask}
+					onMerge={handleMergeTask}
+					onDiscard={handleDiscardWorktree}
 				/>
 			)}
 

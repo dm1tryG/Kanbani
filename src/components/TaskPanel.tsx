@@ -22,6 +22,8 @@ interface TaskPanelProps {
 	onDelete: (id: string) => void;
 	onRun: (task: Task) => void;
 	onComment: (task: Task, comment: string) => void;
+	onMerge: (task: Task) => void;
+	onDiscard: (task: Task) => void;
 }
 
 export default function TaskPanel({
@@ -31,6 +33,8 @@ export default function TaskPanel({
 	onDelete,
 	onRun,
 	onComment,
+	onMerge,
+	onDiscard,
 }: TaskPanelProps) {
 	const [title, setTitle] = useState(task.title);
 	const [description, setDescription] = useState(task.description);
@@ -252,7 +256,7 @@ export default function TaskPanel({
 								</div>
 							)}
 
-							<div className="text-caption text-faint flex items-center gap-3">
+							<div className="text-caption text-faint flex items-center gap-3 flex-wrap">
 								<span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
 								{task.sessionId && (
 									<span className="flex items-center gap-1 text-success" title={task.sessionId}>
@@ -260,7 +264,35 @@ export default function TaskPanel({
 										Session active
 									</span>
 								)}
+								{task.worktreePath && (
+									<span className="flex items-center gap-1 text-accent" title={task.worktreePath}>
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-label="Worktree">
+											<path d="M6 3v12" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="6" r="3" /><path d="M6 9a9 9 0 0 0 9 9" />
+										</svg>
+										Worktree
+									</span>
+								)}
+								{task.branch && (
+									<span className="font-mono text-code bg-surface-alt px-1.5 py-0.5 rounded">
+										{task.branch}
+									</span>
+								)}
 							</div>
+
+							{/* Merge / Discard actions */}
+							{task.worktreePath && !task.agentRunning && (
+								<div className="flex items-center gap-2.5">
+									<Button variant="success" size="sm" onClick={() => onMerge(task)}>
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-label="Merge">
+											<circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 9v3a6 6 0 0 0 6 6h3" />
+										</svg>
+										Merge &amp; Done
+									</Button>
+									<Button variant="ghost" size="sm" onClick={() => onDiscard(task)}>
+										Discard
+									</Button>
+								</div>
+							)}
 
 							{/* Comments Section */}
 							{comments.length > 0 && (

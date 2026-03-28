@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { type NextRequest, NextResponse } from "next/server";
 import { readBoard } from "@/lib/board";
+import { getTaskCwd } from "@/lib/worktree";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
@@ -15,10 +16,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 		return NextResponse.json({ error: "Task has no folder" }, { status: 400 });
 	}
 
+	const cwd = getTaskCwd(task);
+
 	try {
 		// Detect current branch
 		const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-			cwd: task.folder,
+			cwd,
 			encoding: "utf-8",
 		}).trim();
 
@@ -37,7 +40,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 		let diffBase = "main";
 		try {
 			diff = execSync(`git diff main...HEAD`, {
-				cwd: task.folder,
+				cwd,
 				encoding: "utf-8",
 				maxBuffer: 10 * 1024 * 1024,
 			});
@@ -45,7 +48,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			// Try master if main doesn't exist
 			try {
 				diff = execSync(`git diff master...HEAD`, {
-					cwd: task.folder,
+					cwd,
 					encoding: "utf-8",
 					maxBuffer: 10 * 1024 * 1024,
 				});
@@ -60,7 +63,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 		if (!diff.trim()) {
 			try {
 				diff = execSync(`git diff HEAD`, {
-					cwd: task.folder,
+					cwd,
 					encoding: "utf-8",
 					maxBuffer: 10 * 1024 * 1024,
 				});
@@ -72,7 +75,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			if (!diff.trim()) {
 				try {
 					diff = execSync(`git diff --cached`, {
-						cwd: task.folder,
+						cwd,
 						encoding: "utf-8",
 						maxBuffer: 10 * 1024 * 1024,
 					});
@@ -90,14 +93,14 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			: `git diff ${diffBase}...HEAD --numstat`;
 		try {
 			numstat = execSync(numstatCmd, {
-				cwd: task.folder,
+				cwd,
 				encoding: "utf-8",
 			});
 		} catch {
 			if (!uncommitted) {
 				try {
 					numstat = execSync(`git diff master...HEAD --numstat`, {
-						cwd: task.folder,
+						cwd,
 						encoding: "utf-8",
 					});
 				} catch {
