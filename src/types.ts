@@ -15,6 +15,7 @@ export interface Task {
 	folder: string;
 	comments: Comment[];
 	agentRunning: boolean;
+	sessionId?: string;
 	createdAt: string;
 }
 

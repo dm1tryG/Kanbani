@@ -252,3 +252,97 @@ test("task panel shows Run button and comments section", async ({ page }) => {
   await expect(panel.getByText("Agent completed successfully")).toBeVisible();
   await page.screenshot({ path: "e2e/screenshots/task-panel-with-comments.png" });
 });
+
+test("task with sessionId shows comment input", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "test-session",
+            title: "Session task",
+            description: "Has active session",
+            column: "testing",
+            folder: "/tmp",
+            sessionId: "fake-session-id-123",
+            comments: [
+              {
+                id: "comment-1",
+                text: "I created the file.",
+                author: "agent",
+                createdAt: new Date().toISOString(),
+              },
+            ],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: ["/tmp"],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+  await page.getByText("Session task").click();
+  await expect(page.getByText("Task Details")).toBeVisible();
+
+  const panel = page.locator(".animate-slide-in");
+
+  // Session indicator
+  await expect(panel.getByText("Session active")).toBeVisible();
+
+  // Comment input should be visible
+  await expect(panel.getByPlaceholder("Add a comment for Claude...")).toBeVisible();
+  await expect(panel.locator("button", { hasText: "Send" })).toBeVisible();
+
+  // Send button should be disabled when empty
+  await expect(panel.locator("button", { hasText: "Send" })).toBeDisabled();
+
+  // Type a comment
+  await panel.getByPlaceholder("Add a comment for Claude...").fill("Please also add tests");
+  await expect(panel.locator("button", { hasText: "Send" })).toBeEnabled();
+
+  await page.screenshot({ path: "e2e/screenshots/task-session-comment-input.png" });
+});
+
+test("task without sessionId does not show comment input", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "test-no-session",
+            title: "No session task",
+            description: "Fresh task",
+            column: "todo",
+            folder: "/tmp",
+            comments: [],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: ["/tmp"],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+  await page.getByText("No session task").click();
+  await expect(page.getByText("Task Details")).toBeVisible();
+
+  const panel = page.locator(".animate-slide-in");
+
+  // No session indicator
+  await expect(panel.getByText("Session active")).not.toBeVisible();
+
+  // No comment input
+  await expect(panel.getByPlaceholder("Add a comment for Claude...")).not.toBeVisible();
+
+  await page.screenshot({ path: "e2e/screenshots/task-no-session-no-comment.png" });
+});

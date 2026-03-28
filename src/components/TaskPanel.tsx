@@ -9,17 +9,24 @@ interface TaskPanelProps {
 	onUpdate: (id: string, data: { title: string; description: string }) => void;
 	onDelete: (id: string) => void;
 	onRun: (task: Task) => void;
+	onComment: (task: Task, comment: string) => void;
 }
 
-export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun }: TaskPanelProps) {
+export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun, onComment }: TaskPanelProps) {
 	const [title, setTitle] = useState(task.title);
 	const [description, setDescription] = useState(task.description);
+	const [commentText, setCommentText] = useState("");
 	const panelRef = useRef<HTMLDivElement>(null);
+	const commentsEndRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		setTitle(task.title);
 		setDescription(task.description);
 	}, [task]);
+
+	useEffect(() => {
+		commentsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [task.comments]);
 
 	useEffect(() => {
 		function handleKey(e: KeyboardEvent) {
@@ -43,7 +50,22 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun }: 
 		onUpdate(task.id, { title, description });
 	}
 
+	function handleSendComment() {
+		const text = commentText.trim();
+		if (!text) return;
+		setCommentText("");
+		onComment(task, text);
+	}
+
+	function handleCommentKeyDown(e: React.KeyboardEvent) {
+		if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+			e.preventDefault();
+			handleSendComment();
+		}
+	}
+
 	const canRun = !!task.folder && !task.agentRunning;
+	const canComment = !!task.folder && !task.agentRunning && !!task.sessionId;
 	const comments = task.comments || [];
 
 	return (
@@ -114,7 +136,7 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun }: 
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
 							onBlur={handleSave}
-							rows={8}
+							rows={4}
 							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
 						/>
 					</div>
@@ -135,6 +157,11 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun }: 
 
 					<div className="text-xs text-gray-400">
 						Created: {new Date(task.createdAt).toLocaleDateString()}
+						{task.sessionId && (
+							<span className="ml-2 text-green-600" title={task.sessionId}>
+								Session active
+							</span>
+						)}
 					</div>
 
 					{/* Comments Section */}
@@ -170,10 +197,36 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun }: 
 										</pre>
 									</div>
 								))}
+								<div ref={commentsEndRef} />
 							</div>
 						</div>
 					)}
 				</div>
+
+				{/* Comment Input */}
+				{canComment && (
+					<div className="p-4 border-t border-gray-200">
+						<div className="flex gap-2">
+							<textarea
+								value={commentText}
+								onChange={(e) => setCommentText(e.target.value)}
+								onKeyDown={handleCommentKeyDown}
+								placeholder="Add a comment for Claude..."
+								rows={2}
+								className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+							/>
+							<button
+								onClick={handleSendComment}
+								type="button"
+								disabled={!commentText.trim()}
+								className="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors cursor-pointer self-end"
+							>
+								Send
+							</button>
+						</div>
+						<p className="text-[10px] text-gray-400 mt-1">Cmd+Enter to send. Claude will resume with full context.</p>
+					</div>
+				)}
 
 				<div className="p-4 border-t border-gray-200">
 					<button
