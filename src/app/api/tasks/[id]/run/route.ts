@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
 import { type NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
 import { readBoard, writeBoard } from "@/lib/board";
@@ -84,6 +84,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
 			if (code === 0) {
 				task.column = "testing";
+
+				// Detect current branch
+				try {
+					const branch = execSync("git rev-parse --abbrev-ref HEAD", {
+						cwd: task.folder,
+						encoding: "utf-8",
+					}).trim();
+					task.branch = branch;
+				} catch {
+					// Not a git repo or git not available — skip
+				}
 
 				// Parse JSON output to extract result and session_id
 				let resultText = stdout.trim() || "(no output)";
