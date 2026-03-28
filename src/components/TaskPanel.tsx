@@ -22,6 +22,8 @@ interface TaskPanelProps {
 	onDelete: (id: string) => void;
 	onRun: (task: Task) => void;
 	onComment: (task: Task, comment: string) => void;
+	onMerge: (task: Task) => void;
+	onDiscard: (task: Task) => void;
 }
 
 export default function TaskPanel({
@@ -31,6 +33,8 @@ export default function TaskPanel({
 	onDelete,
 	onRun,
 	onComment,
+	onMerge,
+	onDiscard,
 }: TaskPanelProps) {
 	const [title, setTitle] = useState(task.title);
 	const [description, setDescription] = useState(task.description);
@@ -119,8 +123,8 @@ export default function TaskPanel({
 		}
 	}
 
-	const canRun = !!task.folder && !task.agentRunning;
-	const canComment = !!task.folder && !task.agentRunning && !!task.sessionId;
+	const canRun = !!task.folder && !task.agentRunning && !task.sessionId;
+	const canComment = !!task.folder && !task.agentRunning && !!task.sessionId && task.column !== "done";
 	const comments = task.comments || [];
 
 	return (
@@ -159,6 +163,19 @@ export default function TaskPanel({
 								Run
 							</Button>
 						)}
+						{task.worktreePath && !task.agentRunning && (
+							<>
+								<Button variant="accent" size="sm" onClick={() => onMerge(task)} className="flex items-center gap-1.5">
+									<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-label="Merge">
+										<circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 9v3a6 6 0 0 0 6 6h3" />
+									</svg>
+									Merge
+								</Button>
+								<Button variant="ghost" size="sm" onClick={() => onDiscard(task)}>
+									Discard
+								</Button>
+							</>
+						)}
 						<button
 							onClick={onClose}
 							type="button"
@@ -181,36 +198,38 @@ export default function TaskPanel({
 				</div>
 
 				{/* Tabs */}
-				<div className="flex items-center gap-0 px-6 border-b border-border bg-surface">
-					<button
-						type="button"
-						onClick={() => setActiveTab("overview")}
-						className={`px-4 py-2.5 text-body font-semibold border-b-2 transition-colors cursor-pointer ${
-							activeTab === "overview"
-								? "border-primary text-primary"
-								: "border-transparent text-muted hover:text-foreground"
-						}`}
-					>
-						Overview
-					</button>
-					<button
-						type="button"
-						onClick={() => setActiveTab("diff")}
-						className={`px-4 py-2.5 text-body font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
-							activeTab === "diff"
-								? "border-primary text-primary"
-								: "border-transparent text-muted hover:text-foreground"
-						}`}
-					>
-						Diff
-						{diffStats && (
-							<span className="flex items-center gap-1 text-caption font-mono">
-								<span className="text-success">+{diffStats.additions}</span>
-								<span className="text-destructive">-{diffStats.deletions}</span>
-							</span>
-						)}
-					</button>
-				</div>
+				{task.column !== "done" && (
+					<div className="flex items-center gap-0 px-6 border-b border-border bg-surface">
+						<button
+							type="button"
+							onClick={() => setActiveTab("overview")}
+							className={`px-4 py-2.5 text-body font-semibold border-b-2 transition-colors cursor-pointer ${
+								activeTab === "overview"
+									? "border-primary text-primary"
+									: "border-transparent text-muted hover:text-foreground"
+							}`}
+						>
+							Overview
+						</button>
+						<button
+							type="button"
+							onClick={() => setActiveTab("diff")}
+							className={`px-4 py-2.5 text-body font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+								activeTab === "diff"
+									? "border-primary text-primary"
+									: "border-transparent text-muted hover:text-foreground"
+							}`}
+						>
+							Diff
+							{diffStats && (
+								<span className="flex items-center gap-1 text-caption font-mono">
+									<span className="text-success">+{diffStats.additions}</span>
+									<span className="text-destructive">-{diffStats.deletions}</span>
+								</span>
+							)}
+						</button>
+					</div>
+				)}
 
 				{/* Tab Content */}
 				{activeTab === "overview" ? (
@@ -224,6 +243,7 @@ export default function TaskPanel({
 								value={title}
 								onChange={(e) => setTitle(e.target.value)}
 								onBlur={handleSave}
+								disabled={task.column === "done"}
 							/>
 
 							<Textarea
@@ -233,6 +253,7 @@ export default function TaskPanel({
 								onChange={(e) => setDescription(e.target.value)}
 								onBlur={handleSave}
 								rows={4}
+								disabled={task.column === "done"}
 							/>
 
 							{task.folder && (
@@ -252,12 +273,25 @@ export default function TaskPanel({
 								</div>
 							)}
 
-							<div className="text-caption text-faint flex items-center gap-3">
+							<div className="text-caption text-faint flex items-center gap-3 flex-wrap">
 								<span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
 								{task.sessionId && (
 									<span className="flex items-center gap-1 text-success" title={task.sessionId}>
 										<span className="w-1.5 h-1.5 rounded-full bg-success" />
 										Session active
+									</span>
+								)}
+								{task.worktreePath && (
+									<span className="flex items-center gap-1 text-accent" title={task.worktreePath}>
+										<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-label="Worktree">
+											<path d="M6 3v12" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="6" r="3" /><path d="M6 9a9 9 0 0 0 9 9" />
+										</svg>
+										Worktree
+									</span>
+								)}
+								{task.branch && (
+									<span className="font-mono text-code bg-surface-alt px-1.5 py-0.5 rounded">
+										{task.branch}
 									</span>
 								)}
 							</div>

@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { type NextRequest, NextResponse } from "next/server";
 import { readBoard } from "@/lib/board";
+import { getTaskCwd } from "@/lib/worktree";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	const { id } = await params;
@@ -15,10 +16,12 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 		return NextResponse.json({ error: "Task has no folder" }, { status: 400 });
 	}
 
+	const cwd = getTaskCwd(task);
+
 	try {
 		// Detect current branch
 		const branch = execSync("git rev-parse --abbrev-ref HEAD", {
-			cwd: task.folder,
+			cwd,
 			encoding: "utf-8",
 		}).trim();
 
@@ -37,7 +40,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 		let diffBase = "main";
 		try {
 			diff = execSync(`git diff main...HEAD`, {
-				cwd: task.folder,
+				cwd,
 				encoding: "utf-8",
 				maxBuffer: 10 * 1024 * 1024,
 			});
@@ -45,7 +48,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			// Try master if main doesn't exist
 			try {
 				diff = execSync(`git diff master...HEAD`, {
-					cwd: task.folder,
+					cwd,
 					encoding: "utf-8",
 					maxBuffer: 10 * 1024 * 1024,
 				});
@@ -55,12 +58,27 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			}
 		}
 
-		// If branch diff is empty, fall back to uncommitted changes (staged + unstaged)
+		// If branch diff is empty, fall back to uncommitted changes (staged + unstaged + untracked)
 		let uncommitted = false;
+		let addedIntentToAdd = false;
 		if (!diff.trim()) {
+			// Mark untracked files with intent-to-add so git diff can see them
+			try {
+				const untracked = execSync(`git ls-files --others --exclude-standard`, {
+					cwd,
+					encoding: "utf-8",
+				}).trim();
+				if (untracked) {
+					execSync("git add -N .", { cwd, stdio: "pipe" });
+					addedIntentToAdd = true;
+				}
+			} catch {
+				// ignore
+			}
+
 			try {
 				diff = execSync(`git diff HEAD`, {
-					cwd: task.folder,
+					cwd,
 					encoding: "utf-8",
 					maxBuffer: 10 * 1024 * 1024,
 				});
@@ -68,11 +86,10 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			} catch {
 				diff = "";
 			}
-			// Also include staged but not yet diffed against HEAD — pick up untracked via diff --cached
 			if (!diff.trim()) {
 				try {
 					diff = execSync(`git diff --cached`, {
-						cwd: task.folder,
+						cwd,
 						encoding: "utf-8",
 						maxBuffer: 10 * 1024 * 1024,
 					});
@@ -90,14 +107,14 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			: `git diff ${diffBase}...HEAD --numstat`;
 		try {
 			numstat = execSync(numstatCmd, {
-				cwd: task.folder,
+				cwd,
 				encoding: "utf-8",
 			});
 		} catch {
 			if (!uncommitted) {
 				try {
 					numstat = execSync(`git diff master...HEAD --numstat`, {
-						cwd: task.folder,
+						cwd,
 						encoding: "utf-8",
 					});
 				} catch {
@@ -127,6 +144,15 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
 			}),
 			{ additions: 0, deletions: 0 },
 		);
+
+		// Clean up intent-to-add markers
+		if (addedIntentToAdd) {
+			try {
+				execSync("git reset", { cwd, stdio: "pipe" });
+			} catch {
+				// ignore
+			}
+		}
 
 		return NextResponse.json({ branch, diff, files, stats, uncommitted });
 	} catch (error) {

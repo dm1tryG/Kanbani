@@ -31,12 +31,7 @@ Wait for answers. Then proceed.
 - If a PR is **not** already open for this branch, **open one** using `gh pr create`.
 - PR body should include a summary and test plan.
 
-### Step 6: Dev Server
-- After finishing work, **always** start the dev server locally and send the user the link.
-- If the port is busy — kill the process and restart: `lsof -ti:3000 | xargs kill -9; npm run dev`.
-- Send the link: `http://localhost:3000`
-
-### Step 7: Show the Full Diff
+### Step 6: Show the Full Diff
 - **Always** show the user the **full diff** of everything done in this iteration — from the commit where work started (branch point / first commit on branch) to current HEAD.
 - Use `git diff <start>...HEAD` to show the complete picture, not just the last commit.
 - This is mandatory. The user wants to review the entire delta, not incremental pieces.

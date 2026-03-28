@@ -27,7 +27,7 @@ export default function Column({
 
 	return (
 		<div
-			className={`bg-surface-dim/60 rounded-xl w-72 flex-shrink-0 flex flex-col max-h-full border border-border/50 transition-colors duration-150 ${
+			className={`bg-surface-dim/60 rounded-xl flex-1 min-w-[250px] flex flex-col max-h-full border border-border/50 transition-colors duration-150 ${
 				isOver ? "bg-surface-dim border-primary/30" : ""
 			}`}
 		>

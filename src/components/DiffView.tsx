@@ -130,10 +130,7 @@ export default function DiffView({ task }: DiffViewProps) {
 			<div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-surface-alt">
 				<div className="flex items-center gap-2">
 					<Badge variant="neutral">{data.branch}</Badge>
-					{data.uncommitted && (
-						<Badge variant="warning">uncommitted</Badge>
-					)}
-					<span className="text-caption text-faint">
+<span className="text-caption text-faint">
 						{data.files.length} file{data.files.length !== 1 ? "s" : ""}
 					</span>
 				</div>

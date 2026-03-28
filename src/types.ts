@@ -17,6 +17,7 @@ export interface Task {
 	agentRunning: boolean;
 	sessionId?: string;
 	branch?: string;
+	worktreePath?: string;
 	createdAt: string;
 }
 
