@@ -346,3 +346,179 @@ test("task without sessionId does not show comment input", async ({ page }) => {
 
   await page.screenshot({ path: "e2e/screenshots/task-no-session-no-comment.png" });
 });
+
+test("task with worktree shows branch and merge/discard buttons", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "test-worktree",
+            title: "Worktree task",
+            description: "Task running in a worktree",
+            column: "testing",
+            folder: "/Users/dmitrii/projects/kanbani",
+            worktreePath: "/Users/dmitrii/projects/.kanbani-worktrees/worktree-task-abc123",
+            branch: "task/worktree-task-abc123",
+            sessionId: "session-wt-1",
+            comments: [
+              {
+                id: "comment-wt-1",
+                text: "I implemented the feature in the worktree.",
+                author: "agent",
+                createdAt: new Date().toISOString(),
+              },
+            ],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: ["/Users/dmitrii/projects/kanbani"],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+  await page.getByText("Worktree task").click();
+  await expect(page.getByText("Task Details")).toBeVisible();
+
+  const panel = page.locator(".animate-slide-in");
+
+  // Worktree indicator
+  await expect(panel.getByText("Worktree", { exact: true })).toBeVisible();
+
+  // Branch name
+  await expect(panel.getByText("task/worktree-task-abc123")).toBeVisible();
+
+  // Merge & Done button
+  await expect(panel.locator("button", { hasText: "Merge" })).toBeVisible();
+
+  // Discard button
+  await expect(panel.locator("button", { hasText: "Discard" })).toBeVisible();
+
+  await page.screenshot({ path: "e2e/screenshots/task-worktree-merge-buttons.png" });
+});
+
+test("task without worktree does not show merge buttons", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "test-no-wt",
+            title: "No worktree task",
+            description: "Regular task without worktree",
+            column: "testing",
+            folder: "/tmp",
+            comments: [
+              {
+                id: "comment-nwt-1",
+                text: "Done.",
+                author: "agent",
+                createdAt: new Date().toISOString(),
+              },
+            ],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: ["/tmp"],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+  await page.getByText("No worktree task").click();
+  await expect(page.getByText("Task Details")).toBeVisible();
+
+  const panel = page.locator(".animate-slide-in");
+
+  // No worktree indicator
+  await expect(panel.getByText("Worktree", { exact: true })).not.toBeVisible();
+
+  // No merge buttons
+  await expect(panel.locator("button", { hasText: "Merge" })).not.toBeVisible();
+  await expect(panel.locator("button", { hasText: "Discard" })).not.toBeVisible();
+
+  await page.screenshot({ path: "e2e/screenshots/task-no-worktree-no-merge.png" });
+});
+
+test("multiple tasks in different columns — parallel worktrees", async ({ page }) => {
+  writeFileSync(
+    DATA_PATH,
+    JSON.stringify(
+      {
+        tasks: [
+          {
+            id: "task-parallel-1",
+            title: "Fix login bug",
+            description: "Auth flow broken",
+            column: "inprogress",
+            folder: "/Users/dmitrii/projects/kanbani",
+            worktreePath: "/Users/dmitrii/projects/.kanbani-worktrees/fix-login-bug-task1",
+            branch: "task/fix-login-bug-task1",
+            comments: [],
+            agentRunning: true,
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "task-parallel-2",
+            title: "Add dark mode",
+            description: "Theme support",
+            column: "testing",
+            folder: "/Users/dmitrii/projects/kanbani",
+            worktreePath: "/Users/dmitrii/projects/.kanbani-worktrees/add-dark-mode-task2",
+            branch: "task/add-dark-mode-task2",
+            sessionId: "session-dm-1",
+            comments: [
+              {
+                id: "c-dm",
+                text: "Dark mode implemented.",
+                author: "agent",
+                createdAt: new Date().toISOString(),
+              },
+            ],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+          {
+            id: "task-parallel-3",
+            title: "Refactor API",
+            description: "Clean up endpoints",
+            column: "done",
+            folder: "/Users/dmitrii/projects/kanbani",
+            branch: "task/refactor-api-task3",
+            comments: [
+              {
+                id: "c-ra",
+                text: "Refactoring complete.",
+                author: "agent",
+                createdAt: new Date().toISOString(),
+              },
+            ],
+            agentRunning: false,
+            createdAt: new Date().toISOString(),
+          },
+        ],
+        projects: ["/Users/dmitrii/projects/kanbani"],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+
+  await page.goto("/");
+
+  // All tasks visible in their columns
+  await expect(page.getByText("Fix login bug")).toBeVisible();
+  await expect(page.getByText("Add dark mode")).toBeVisible();
+  await expect(page.getByText("Refactor API")).toBeVisible();
+
+  await page.screenshot({ path: "e2e/screenshots/parallel-worktrees-board.png" });
+});
