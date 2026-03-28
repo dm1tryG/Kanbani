@@ -217,20 +217,19 @@ export default function TaskPanel({
 				{/* Comment Input */}
 				{canComment && (
 					<div className="px-6 py-4 border-t border-border bg-surface-alt">
-						<div className="flex gap-2.5">
+						<div className="flex items-stretch gap-2.5">
 							<textarea
 								value={commentText}
 								onChange={(e) => setCommentText(e.target.value)}
 								onKeyDown={handleCommentKeyDown}
 								placeholder="Add a comment for Claude..."
-								rows={2}
+								rows={1}
 								className="flex-1 px-3 py-2.5 bg-surface border border-border-strong rounded-md text-body text-foreground placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors resize-none"
 							/>
 							<Button
 								variant="accent"
 								onClick={handleSendComment}
 								disabled={!commentText.trim()}
-								className="self-end"
 							>
 								Send
 							</Button>
