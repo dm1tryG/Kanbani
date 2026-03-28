@@ -41,7 +41,6 @@ const server = spawn("npx", ["next", "start", "--port", String(PORT)], {
 	env: {
 		...process.env,
 		BOARD_PATH,
-		NODE_ENV: "production",
 	},
 });
 
