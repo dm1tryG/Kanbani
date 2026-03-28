@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
 
-const DATA_PATH = join(process.cwd(), "data", "board.json");
+const DATA_PATH = join(process.cwd(), "data", "board.test.json");
 
 test.beforeEach(() => {
   writeFileSync(
@@ -74,8 +74,8 @@ test("project dropdown shows previously used projects", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByText("Existing task")).toBeVisible();
 
-  // Task card should show folder label
-  await expect(page.locator(".text-blue-700", { hasText: "kanbani" })).toBeVisible();
+  // Task card should show folder label (Badge component)
+  await expect(page.getByText("kanbani", { exact: true }).first()).toBeVisible();
   await page.screenshot({ path: "e2e/screenshots/task-card-with-label.png" });
 
   // Open create modal — should show dropdown (not picker) since projects exist
@@ -128,7 +128,7 @@ test("can open task side panel and see folder", async ({ page }) => {
   const panel = page.locator(".animate-slide-in");
   await expect(panel.getByText("Project", { exact: true })).toBeVisible();
   await expect(
-    panel.locator(".text-blue-700", { hasText: "kanbani" }),
+    panel.getByText("kanbani", { exact: true }).first(),
   ).toBeVisible();
   await expect(
     panel.getByText("/Users/dmitrii/projects/kanbani"),

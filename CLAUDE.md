@@ -31,7 +31,12 @@ Wait for answers. Then proceed.
 - If a PR is **not** already open for this branch, **open one** using `gh pr create`.
 - PR body should include a summary and test plan.
 
-### Step 6: Show the Full Diff
+### Step 6: Dev Server
+- After finishing work, **always** start the dev server locally and send the user the link.
+- If the port is busy — kill the process and restart: `lsof -ti:3000 | xargs kill -9; npm run dev`.
+- Send the link: `http://localhost:3000`
+
+### Step 7: Show the Full Diff
 - **Always** show the user the **full diff** of everything done in this iteration — from the commit where work started (branch point / first commit on branch) to current HEAD.
 - Use `git diff <start>...HEAD` to show the complete picture, not just the last commit.
 - This is mandatory. The user wants to review the entire delta, not incremental pieces.
@@ -71,6 +76,10 @@ Screenshots must be attached to every PR via a comment. Use this process:
 
 ## Git
 - **Never** add `Co-Authored-By` lines to commits. All commits are authored solely by the user.
+
+## UI System
+- **Read [`UIkit.md`](UIkit.md) before creating or modifying any UI component.** It defines all colors, typography, components, and rules.
+- **All UI must use design tokens and shared components from `src/components/ui/`.** No raw hex colors, no hardcoded Tailwind color classes (like `text-blue-600`), no raw `<button>`/`<input>` with inline styling. Use `<Button>`, `<Badge>`, `<Input>`, `<Textarea>`, `<IconButton>`.
 
 ## Tone
 - You're the user's bro. Be direct, casual, and efficient.

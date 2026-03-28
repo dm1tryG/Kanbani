@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import FolderPicker from "./FolderPicker";
+import { Button } from "./ui";
+import { Input, Textarea } from "./ui/Input";
 
 interface CreateTaskModalProps {
 	projects: string[];
@@ -82,32 +84,25 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center">
-			<div className="absolute inset-0 bg-black/30" />
+			<div className="absolute inset-0 bg-overlay animate-fade-in" />
 			<div
 				ref={modalRef}
-				className="relative bg-white rounded-xl shadow-xl w-[480px] max-w-full p-5"
+				className="relative bg-surface rounded-xl shadow-modal w-[500px] max-w-full p-6 animate-scale-in"
 			>
-				<h2 className="text-lg font-semibold text-gray-900 mb-4">Create Task</h2>
-				<form onSubmit={handleSubmit} className="space-y-3">
-					<div>
-						<label htmlFor="new-title" className="block text-sm font-medium text-gray-700 mb-1">
-							Title
-						</label>
-						<input
-							ref={titleRef}
-							id="new-title"
-							type="text"
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
-							placeholder="Enter a title..."
-							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-						/>
-					</div>
+				<h2 className="text-heading font-bold text-foreground mb-5">Create Task</h2>
+				<form onSubmit={handleSubmit} className="space-y-4">
+					<Input
+						ref={titleRef}
+						id="new-title"
+						label="Title"
+						type="text"
+						value={title}
+						onChange={(e) => setTitle(e.target.value)}
+						placeholder="Enter a title..."
+					/>
 
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">
-							Project
-						</label>
+						<label className="block text-body font-semibold text-foreground mb-1.5">Project</label>
 						{showPicker ? (
 							<FolderPicker
 								onSelect={handleFolderSelected}
@@ -120,37 +115,50 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 								<button
 									type="button"
 									onClick={() => setShowDropdown(!showDropdown)}
-									className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-left flex items-center justify-between hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+									className="w-full px-3 py-2.5 bg-surface border border-border-strong rounded-md text-body text-left flex items-center justify-between hover:border-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary cursor-pointer transition-colors"
 								>
-									<span className={folder ? "text-gray-900" : "text-gray-400"}>
+									<span className={folder ? "text-foreground" : "text-faint"}>
 										{folder ? folderLabel(folder) : "Select a project..."}
 									</span>
-									<svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+									<svg
+										className="w-4 h-4 text-faint"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth={2}
+											d="M19 9l-7 7-7-7"
+										/>
 									</svg>
 								</button>
 								{folder && (
-									<div className="text-xs text-gray-400 mt-1 truncate font-mono" title={folder}>
+									<div className="text-caption text-faint mt-1.5 truncate font-mono" title={folder}>
 										{folder}
 									</div>
 								)}
 								{showDropdown && (
-									<div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+									<div className="absolute z-10 mt-1 w-full bg-surface border border-border rounded-lg shadow-dropdown max-h-48 overflow-y-auto animate-scale-in">
 										{projects.map((p) => (
 											<button
 												key={p}
 												type="button"
 												onClick={() => selectProject(p)}
-												className="w-full px-3 py-2 text-sm text-left hover:bg-blue-50 flex flex-col cursor-pointer"
+												className="w-full px-3 py-2.5 text-body text-left hover:bg-primary-light flex flex-col cursor-pointer transition-colors"
 											>
-												<span className="font-medium text-gray-900">{folderLabel(p)}</span>
-												<span className="text-xs text-gray-400 truncate font-mono">{p}</span>
+												<span className="font-semibold text-foreground">{folderLabel(p)}</span>
+												<span className="text-caption text-faint truncate font-mono">{p}</span>
 											</button>
 										))}
 										<button
 											type="button"
-											onClick={() => { setShowDropdown(false); setShowPicker(true); }}
-											className="w-full px-3 py-2 text-sm text-left hover:bg-blue-50 text-blue-600 font-medium border-t border-gray-100 cursor-pointer"
+											onClick={() => {
+												setShowDropdown(false);
+												setShowPicker(true);
+											}}
+											className="w-full px-3 py-2.5 text-body text-left hover:bg-primary-light text-primary font-semibold border-t border-border cursor-pointer transition-colors"
 										>
 											+ Browse for folder...
 										</button>
@@ -160,34 +168,21 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 						)}
 					</div>
 
-					<div>
-						<label htmlFor="new-desc" className="block text-sm font-medium text-gray-700 mb-1">
-							Description
-						</label>
-						<textarea
-							id="new-desc"
-							value={description}
-							onChange={(e) => setDescription(e.target.value)}
-							placeholder="Add a description..."
-							rows={3}
-							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
-						/>
-					</div>
-					<div className="flex justify-end gap-2 pt-2">
-						<button
-							type="button"
-							onClick={onClose}
-							className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
-						>
+					<Textarea
+						id="new-desc"
+						label="Description"
+						value={description}
+						onChange={(e) => setDescription(e.target.value)}
+						placeholder="Add a description..."
+						rows={3}
+					/>
+					<div className="flex justify-end gap-2.5 pt-3">
+						<Button variant="secondary" type="button" onClick={onClose}>
 							Cancel
-						</button>
-						<button
-							type="submit"
-							className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
-							disabled={!title.trim() || !folder.trim()}
-						>
+						</Button>
+						<Button type="submit" disabled={!title.trim() || !folder.trim()}>
 							Create
-						</button>
+						</Button>
 					</div>
 				</form>
 			</div>

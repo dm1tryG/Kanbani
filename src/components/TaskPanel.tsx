@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Markdown from "react-markdown";
 import type { Task } from "@/types";
+import { Badge, Button, Textarea } from "./ui";
+import { Input } from "./ui/Input";
 
 interface TaskPanelProps {
 	task: Task;
@@ -12,7 +15,14 @@ interface TaskPanelProps {
 	onComment: (task: Task, comment: string) => void;
 }
 
-export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun, onComment }: TaskPanelProps) {
+export default function TaskPanel({
+	task,
+	onClose,
+	onUpdate,
+	onDelete,
+	onRun,
+	onComment,
+}: TaskPanelProps) {
 	const [title, setTitle] = useState(task.title);
 	const [description, setDescription] = useState(task.description);
 	const [commentText, setCommentText] = useState("");
@@ -70,25 +80,27 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun, on
 
 	return (
 		<div className="fixed inset-0 z-50 flex justify-end">
-			<div className="absolute inset-0 bg-black/30" />
+			<div className="absolute inset-0 bg-overlay animate-fade-in" />
 			<div
 				ref={panelRef}
-				className="relative w-[480px] max-w-full bg-white h-full shadow-xl flex flex-col animate-slide-in"
+				className="relative w-[520px] max-w-full bg-surface h-full shadow-panel flex flex-col animate-slide-in"
 			>
-				<div className="flex items-center justify-between p-4 border-b border-gray-200">
-					<h2 className="text-lg font-semibold text-gray-900">Task Details</h2>
-					<div className="flex items-center gap-2">
+				{/* Header */}
+				<div className="flex items-center justify-between px-6 py-4 border-b border-border">
+					<h2 className="text-heading font-bold text-foreground">Task Details</h2>
+					<div className="flex items-center gap-2.5">
 						{task.agentRunning && (
-							<span className="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded animate-pulse">
+							<Badge variant="warning" className="px-2.5 py-1">
 								Agent running...
-							</span>
+							</Badge>
 						)}
 						{canRun && (
-							<button
+							<Button
+								variant="success"
+								size="sm"
 								onClick={() => onRun(task)}
-								type="button"
 								title="Run Claude agent"
-								className="flex items-center gap-1.5 px-3 py-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
+								className="flex items-center gap-1.5"
 							>
 								<svg
 									width="12"
@@ -100,65 +112,65 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun, on
 									<path d="M8 5v14l11-7z" />
 								</svg>
 								Run
-							</button>
+							</Button>
 						)}
 						<button
 							onClick={onClose}
 							type="button"
-							className="text-gray-400 hover:text-gray-600 text-2xl leading-none cursor-pointer"
+							className="w-8 h-8 flex items-center justify-center rounded-lg text-faint hover:text-foreground hover:bg-surface-dim transition-all duration-150 cursor-pointer"
 						>
-							&times;
+							<svg
+								width="18"
+								height="18"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+							>
+								<path d="M18 6L6 18M6 6l12 12" />
+							</svg>
 						</button>
 					</div>
 				</div>
 
-				<div className="flex-1 overflow-y-auto p-4 space-y-4">
-					<div>
-						<label htmlFor="task-title" className="block text-sm font-medium text-gray-700 mb-1">
-							Title
-						</label>
-						<input
-							id="task-title"
-							type="text"
-							value={title}
-							onChange={(e) => setTitle(e.target.value)}
-							onBlur={handleSave}
-							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-						/>
-					</div>
+				{/* Content */}
+				<div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+					<Input
+						id="task-title"
+						label="Title"
+						type="text"
+						value={title}
+						onChange={(e) => setTitle(e.target.value)}
+						onBlur={handleSave}
+					/>
 
-					<div>
-						<label htmlFor="task-desc" className="block text-sm font-medium text-gray-700 mb-1">
-							Description
-						</label>
-						<textarea
-							id="task-desc"
-							value={description}
-							onChange={(e) => setDescription(e.target.value)}
-							onBlur={handleSave}
-							rows={4}
-							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
-						/>
-					</div>
+					<Textarea
+						id="task-desc"
+						label="Description"
+						value={description}
+						onChange={(e) => setDescription(e.target.value)}
+						onBlur={handleSave}
+						rows={4}
+					/>
 
 					{task.folder && (
 						<div>
-							<span className="block text-sm font-medium text-gray-700 mb-1">Project</span>
-							<div className="flex items-center gap-2">
-								<span className="inline-block text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded">
-									{task.folder.split("/").filter(Boolean).pop() || task.folder}
-								</span>
-								<span className="text-xs text-gray-400 truncate" title={task.folder}>
+							<span className="block text-body font-semibold text-foreground mb-1.5">Project</span>
+							<div className="flex items-center gap-2.5">
+								<Badge>{task.folder.split("/").filter(Boolean).pop() || task.folder}</Badge>
+								<span className="text-caption text-faint truncate font-mono" title={task.folder}>
 									{task.folder}
 								</span>
 							</div>
 						</div>
 					)}
 
-					<div className="text-xs text-gray-400">
-						Created: {new Date(task.createdAt).toLocaleDateString()}
+					<div className="text-caption text-faint flex items-center gap-3">
+						<span>Created: {new Date(task.createdAt).toLocaleDateString()}</span>
 						{task.sessionId && (
-							<span className="ml-2 text-green-600" title={task.sessionId}>
+							<span className="flex items-center gap-1 text-success" title={task.sessionId}>
+								<span className="w-1.5 h-1.5 rounded-full bg-success" />
 								Session active
 							</span>
 						)}
@@ -167,34 +179,40 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun, on
 					{/* Comments Section */}
 					{comments.length > 0 && (
 						<div>
-							<h3 className="text-sm font-medium text-gray-700 mb-2">
+							<h3 className="text-body font-semibold text-foreground mb-3">
 								Comments ({comments.length})
 							</h3>
-							<div className="space-y-2">
+							<div className="space-y-2.5">
 								{comments.map((comment) => (
 									<div
 										key={comment.id}
-										className={`text-xs rounded-lg p-3 ${
+										className={`text-caption rounded-lg p-3.5 ${
 											comment.author === "agent"
-												? "bg-purple-50 border border-purple-100"
-												: "bg-gray-50 border border-gray-100"
+												? "bg-accent-light border border-accent/10"
+												: "bg-surface-alt border border-border"
 										}`}
 									>
-										<div className="flex items-center justify-between mb-1">
+										<div className="flex items-center justify-between mb-1.5">
 											<span
-												className={`font-medium ${
-													comment.author === "agent" ? "text-purple-700" : "text-gray-700"
+												className={`font-semibold ${
+													comment.author === "agent" ? "text-accent" : "text-foreground"
 												}`}
 											>
 												{comment.author === "agent" ? "Claude Agent" : "User"}
 											</span>
-											<span className="text-gray-400">
+											<span className="text-faint">
 												{new Date(comment.createdAt).toLocaleString()}
 											</span>
 										</div>
-										<pre className="whitespace-pre-wrap break-words text-gray-600 font-mono text-[11px] max-h-60 overflow-y-auto">
-											{comment.text}
-										</pre>
+										{comment.author === "agent" ? (
+											<div className="prose-comment max-h-60 overflow-y-auto text-muted text-caption leading-relaxed">
+												<Markdown>{comment.text}</Markdown>
+											</div>
+										) : (
+											<pre className="whitespace-pre-wrap break-words text-muted font-mono text-code max-h-60 overflow-y-auto leading-relaxed">
+												{comment.text}
+											</pre>
+										)}
 									</div>
 								))}
 								<div ref={commentsEndRef} />
@@ -205,37 +223,31 @@ export default function TaskPanel({ task, onClose, onUpdate, onDelete, onRun, on
 
 				{/* Comment Input */}
 				{canComment && (
-					<div className="p-4 border-t border-gray-200">
-						<div className="flex gap-2">
+					<div className="px-6 py-4 border-t border-border bg-surface-alt">
+						<div className="flex items-stretch gap-2.5">
 							<textarea
 								value={commentText}
 								onChange={(e) => setCommentText(e.target.value)}
 								onKeyDown={handleCommentKeyDown}
 								placeholder="Add a comment for Claude..."
-								rows={2}
-								className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm resize-none"
+								rows={1}
+								className="flex-1 px-3 py-2.5 bg-surface border border-border-strong rounded-md text-body text-foreground placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent transition-colors resize-none"
 							/>
-							<button
-								onClick={handleSendComment}
-								type="button"
-								disabled={!commentText.trim()}
-								className="px-4 py-2 bg-purple-500 hover:bg-purple-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors cursor-pointer self-end"
-							>
+							<Button variant="accent" onClick={handleSendComment} disabled={!commentText.trim()}>
 								Send
-							</button>
+							</Button>
 						</div>
-						<p className="text-[10px] text-gray-400 mt-1">Cmd+Enter to send. Claude will resume with full context.</p>
+						<p className="text-caption text-faint mt-2">
+							Cmd+Enter to send. Claude will resume with full context.
+						</p>
 					</div>
 				)}
 
-				<div className="p-4 border-t border-gray-200">
-					<button
-						onClick={() => onDelete(task.id)}
-						type="button"
-						className="text-sm text-red-500 hover:text-red-700 cursor-pointer"
-					>
+				{/* Footer */}
+				<div className="px-6 py-4 border-t border-border">
+					<Button variant="destructive" size="sm" onClick={() => onDelete(task.id)}>
 						Delete task
-					</button>
+					</Button>
 				</div>
 			</div>
 		</div>

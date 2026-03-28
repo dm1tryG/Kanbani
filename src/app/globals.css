@@ -1,14 +1,171 @@
 @import "tailwindcss";
 
+/* ============================================
+   KANBANI DESIGN TOKENS — "Warm Workshop"
+   See UIkit.md for full documentation.
+   ============================================ */
+
+@theme {
+  /* --- Font --- */
+  --font-display: 'Nunito', system-ui, sans-serif;
+
+  /* --- Primary (Terracotta) — main actions, links --- */
+  --color-primary: #d4775c;
+  --color-primary-hover: #c4664b;
+  --color-primary-light: #fdf2ef;
+
+  /* --- Accent (Lavender) — agent/AI features --- */
+  --color-accent: #8b7ec8;
+  --color-accent-hover: #7a6db7;
+  --color-accent-light: #f4f2fa;
+
+  /* --- Semantic --- */
+  --color-success: #6b9e7e;
+  --color-success-hover: #5a8d6d;
+  --color-success-light: #f0f7f2;
+  --color-warning: #c08c3e;
+  --color-warning-light: #fef8ee;
+  --color-destructive: #d4574e;
+  --color-destructive-hover: #c4463d;
+
+  /* --- Surfaces --- */
+  --color-surface: #ffffff;
+  --color-surface-alt: #faf8f6;
+  --color-surface-dim: #f3f0ed;
+  --color-border: #e8e4df;
+  --color-border-strong: #d4cfc9;
+  --color-overlay: rgba(45, 42, 38, 0.35);
+
+  /* --- Text --- */
+  --color-foreground: #2d2a26;
+  --color-muted: #7a756e;
+  --color-faint: #b5b0a8;
+
+  /* --- Typography scale --- */
+  --text-heading: 1.125rem;
+  --text-body: 0.875rem;
+  --text-caption: 0.75rem;
+  --text-code: 0.75rem;
+
+  /* --- Shadows (warm-tinted) --- */
+  --shadow-card: 0 1px 3px rgba(45, 42, 38, 0.05), 0 1px 2px rgba(45, 42, 38, 0.03);
+  --shadow-card-hover: 0 4px 12px rgba(45, 42, 38, 0.08), 0 2px 4px rgba(45, 42, 38, 0.04);
+  --shadow-panel: -8px 0 30px rgba(45, 42, 38, 0.12);
+  --shadow-modal: 0 12px 40px rgba(45, 42, 38, 0.15);
+  --shadow-dropdown: 0 4px 16px rgba(45, 42, 38, 0.1);
+
+  /* --- Radius --- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+}
+
+/* ============================================
+   BASE
+   ============================================ */
+
+body {
+  background: linear-gradient(135deg, #fdf2ef 0%, #faf8f6 40%, #f3f0ed 100%);
+  color: var(--color-foreground);
+  min-height: 100vh;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
 @keyframes slide-in {
-	from {
-		transform: translateX(100%);
-	}
-	to {
-		transform: translateX(0);
-	}
+  from {
+    transform: translateX(100%);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .animate-slide-in {
-	animation: slide-in 0.2s ease-out;
+  animation: slide-in 0.25s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+/* ============================================
+   MARKDOWN IN COMMENTS
+   ============================================ */
+
+.prose-comment p { margin: 0.4em 0; }
+.prose-comment p:first-child { margin-top: 0; }
+.prose-comment p:last-child { margin-bottom: 0; }
+.prose-comment code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  background: var(--color-surface-dim);
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+}
+.prose-comment pre {
+  background: var(--color-surface-dim);
+  border-radius: 0.375rem;
+  padding: 0.75em;
+  margin: 0.5em 0;
+  overflow-x: auto;
+  font-size: 0.7rem;
+}
+.prose-comment pre code {
+  background: none;
+  padding: 0;
+}
+.prose-comment ul, .prose-comment ol {
+  margin: 0.4em 0;
+  padding-left: 1.5em;
+}
+.prose-comment li { margin: 0.15em 0; }
+.prose-comment h1, .prose-comment h2, .prose-comment h3 {
+  font-weight: 700;
+  color: var(--color-foreground);
+  margin: 0.6em 0 0.3em;
+}
+.prose-comment h1 { font-size: 1em; }
+.prose-comment h2 { font-size: 0.9em; }
+.prose-comment h3 { font-size: 0.85em; }
+.prose-comment a {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+.prose-comment blockquote {
+  border-left: 3px solid var(--color-border);
+  padding-left: 0.75em;
+  margin: 0.4em 0;
+  color: var(--color-muted);
+}
+.prose-comment hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0.6em 0;
 }
