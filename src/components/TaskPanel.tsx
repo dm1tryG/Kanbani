@@ -198,36 +198,38 @@ export default function TaskPanel({
 				</div>
 
 				{/* Tabs */}
-				<div className="flex items-center gap-0 px-6 border-b border-border bg-surface">
-					<button
-						type="button"
-						onClick={() => setActiveTab("overview")}
-						className={`px-4 py-2.5 text-body font-semibold border-b-2 transition-colors cursor-pointer ${
-							activeTab === "overview"
-								? "border-primary text-primary"
-								: "border-transparent text-muted hover:text-foreground"
-						}`}
-					>
-						Overview
-					</button>
-					<button
-						type="button"
-						onClick={() => setActiveTab("diff")}
-						className={`px-4 py-2.5 text-body font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
-							activeTab === "diff"
-								? "border-primary text-primary"
-								: "border-transparent text-muted hover:text-foreground"
-						}`}
-					>
-						Diff
-						{diffStats && (
-							<span className="flex items-center gap-1 text-caption font-mono">
-								<span className="text-success">+{diffStats.additions}</span>
-								<span className="text-destructive">-{diffStats.deletions}</span>
-							</span>
-						)}
-					</button>
-				</div>
+				{task.column !== "done" && (
+					<div className="flex items-center gap-0 px-6 border-b border-border bg-surface">
+						<button
+							type="button"
+							onClick={() => setActiveTab("overview")}
+							className={`px-4 py-2.5 text-body font-semibold border-b-2 transition-colors cursor-pointer ${
+								activeTab === "overview"
+									? "border-primary text-primary"
+									: "border-transparent text-muted hover:text-foreground"
+							}`}
+						>
+							Overview
+						</button>
+						<button
+							type="button"
+							onClick={() => setActiveTab("diff")}
+							className={`px-4 py-2.5 text-body font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
+								activeTab === "diff"
+									? "border-primary text-primary"
+									: "border-transparent text-muted hover:text-foreground"
+							}`}
+						>
+							Diff
+							{diffStats && (
+								<span className="flex items-center gap-1 text-caption font-mono">
+									<span className="text-success">+{diffStats.additions}</span>
+									<span className="text-destructive">-{diffStats.deletions}</span>
+								</span>
+							)}
+						</button>
+					</div>
+				)}
 
 				{/* Tab Content */}
 				{activeTab === "overview" ? (
@@ -241,6 +243,7 @@ export default function TaskPanel({
 								value={title}
 								onChange={(e) => setTitle(e.target.value)}
 								onBlur={handleSave}
+								disabled={task.column === "done"}
 							/>
 
 							<Textarea
@@ -250,6 +253,7 @@ export default function TaskPanel({
 								onChange={(e) => setDescription(e.target.value)}
 								onBlur={handleSave}
 								rows={4}
+								disabled={task.column === "done"}
 							/>
 
 							{task.folder && (
