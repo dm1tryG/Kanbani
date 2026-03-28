@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import FolderPicker from "./FolderPicker";
 
 interface CreateTaskModalProps {
 	projects: string[];
@@ -17,27 +18,22 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 	const [description, setDescription] = useState("");
 	const [folder, setFolder] = useState(projects[0] || "");
 	const [showDropdown, setShowDropdown] = useState(false);
-	const [addingNew, setAddingNew] = useState(projects.length === 0);
-	const [newPath, setNewPath] = useState("");
+	const [showPicker, setShowPicker] = useState(projects.length === 0);
 	const modalRef = useRef<HTMLDivElement>(null);
 	const titleRef = useRef<HTMLInputElement>(null);
-	const newPathRef = useRef<HTMLInputElement>(null);
 	const dropdownRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (addingNew) {
-			newPathRef.current?.focus();
-		} else {
+		if (!showPicker) {
 			titleRef.current?.focus();
 		}
-	}, [addingNew]);
+	}, [showPicker]);
 
 	useEffect(() => {
 		function handleKey(e: KeyboardEvent) {
 			if (e.key === "Escape") {
-				if (addingNew && projects.length > 0) {
-					setAddingNew(false);
-					setNewPath("");
+				if (showPicker && projects.length > 0) {
+					setShowPicker(false);
 				} else {
 					onClose();
 				}
@@ -54,7 +50,7 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 			document.removeEventListener("keydown", handleKey);
 			document.removeEventListener("mousedown", handleClickOutside);
 		};
-	}, [onClose, addingNew, projects.length]);
+	}, [onClose, showPicker, projects.length]);
 
 	useEffect(() => {
 		function handleClickOutsideDropdown(e: MouseEvent) {
@@ -74,11 +70,9 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 		onCreate(title, description, folder);
 	}
 
-	function handleAddNewPath() {
-		if (!newPath.trim()) return;
-		setFolder(newPath.trim());
-		setAddingNew(false);
-		setNewPath("");
+	function handleFolderSelected(path: string) {
+		setFolder(path);
+		setShowPicker(false);
 	}
 
 	function selectProject(path: string) {
@@ -91,7 +85,7 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 			<div className="absolute inset-0 bg-black/30" />
 			<div
 				ref={modalRef}
-				className="relative bg-white rounded-xl shadow-xl w-[420px] max-w-full p-5"
+				className="relative bg-white rounded-xl shadow-xl w-[480px] max-w-full p-5"
 			>
 				<h2 className="text-lg font-semibold text-gray-900 mb-4">Create Task</h2>
 				<form onSubmit={handleSubmit} className="space-y-3">
@@ -114,40 +108,13 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 						<label className="block text-sm font-medium text-gray-700 mb-1">
 							Project
 						</label>
-						{addingNew ? (
-							<div className="flex gap-2">
-								<input
-									ref={newPathRef}
-									type="text"
-									value={newPath}
-									onChange={(e) => setNewPath(e.target.value)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") {
-											e.preventDefault();
-											handleAddNewPath();
-										}
-									}}
-									placeholder="/path/to/project"
-									className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono"
-								/>
-								<button
-									type="button"
-									onClick={handleAddNewPath}
-									disabled={!newPath.trim()}
-									className="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
-								>
-									Add
-								</button>
-								{projects.length > 0 && (
-									<button
-										type="button"
-										onClick={() => { setAddingNew(false); setNewPath(""); }}
-										className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 cursor-pointer"
-									>
-										Cancel
-									</button>
-								)}
-							</div>
+						{showPicker ? (
+							<FolderPicker
+								onSelect={handleFolderSelected}
+								onCancel={() => {
+									if (projects.length > 0) setShowPicker(false);
+								}}
+							/>
 						) : (
 							<div ref={dropdownRef} className="relative">
 								<button
@@ -182,10 +149,10 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 										))}
 										<button
 											type="button"
-											onClick={() => { setShowDropdown(false); setAddingNew(true); }}
+											onClick={() => { setShowDropdown(false); setShowPicker(true); }}
 											className="w-full px-3 py-2 text-sm text-left hover:bg-blue-50 text-blue-600 font-medium border-t border-gray-100 cursor-pointer"
 										>
-											+ Add project folder...
+											+ Browse for folder...
 										</button>
 									</div>
 								)}
@@ -202,7 +169,7 @@ export default function CreateTaskModal({ projects, onClose, onCreate }: CreateT
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
 							placeholder="Add a description..."
-							rows={4}
+							rows={3}
 							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
 						/>
 					</div>
